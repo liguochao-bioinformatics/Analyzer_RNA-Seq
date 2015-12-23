@@ -185,5 +185,6 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam)
 
     run_time.write("=" * 40 + " Analyzer ends at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
+
 else:
     print "Error: There is not enough parameters!"
