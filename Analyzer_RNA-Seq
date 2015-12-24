@@ -199,40 +199,55 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
     os.mkdir(find_diff_exp_gene_output_path)
 
-    cuffdiff_gene_exp_diff = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"  ) , "r")
-    diffgene_p_up          = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up"  ) , "w")
-    diffgene_p_down        = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down") , "w")
-    diffgene_q_up          = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up"  ) , "w")
-    diffgene_q_down        = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down") , "w")
+    cuffdiff_gene_exp_diff      = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"              ) , "r")
+    diffgene_p_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up"              ) , "w")
+    diffgene_p_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down"            ) , "w")
+    diffgene_q_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up"              ) , "w")
+    diffgene_q_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down"            ) , "w")
+    gene_log2FC_p_q_for_volcano = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano") , "w")
 
     cuffdiff_gene_exp_diff_lines = cuffdiff_gene_exp_diff.readlines()
-    cuffdiff_gene_exp_diff_title = cuffdiff_gene_exp_diff_lines[0]
+    cuffdiff_gene_exp_diff_title = cuffdiff_gene_exp_diff_lines[0].strip().split("\t")
 
-    diffgene_p_up.write(cuffdiff_gene_exp_diff_title)
-    diffgene_p_down.write(cuffdiff_gene_exp_diff_title)
-    diffgene_q_up.write(cuffdiff_gene_exp_diff_title)
-    diffgene_q_down.write(cuffdiff_gene_exp_diff_title)
+    diffgene_p_up.write("\t".join(cuffdiff_gene_exp_diff_title))
+    diffgene_p_down.write("\t".join(cuffdiff_gene_exp_diff_title))
+    diffgene_q_up.write("\t".join(cuffdiff_gene_exp_diff_title))
+    diffgene_q_down.write("\t".join(cuffdiff_gene_exp_diff_title))
+    gene_log2FC_p_q_for_volcano.write("\t".join([cuffdiff_gene_exp_diff_title[2]] \
+                                         + [cuffdiff_gene_exp_diff_title[9]] \
+                                         + [cuffdiff_gene_exp_diff_title[11]] \
+                                         + [cuffdiff_gene_exp_diff_title[12]]) \
+                                         + "\n")
 
     for line in cuffdiff_gene_exp_diff_lines[1:]:
         line = line.strip().split("\t")
         if line[2] == "-":
             continue
-        if float(line[-3]) < 0.05:
+
+        if float(line[11]) < 0.05:
             if float(line[-5]) > 1:
                 diffgene_p_up.write("\t".join(line) + "\n")
             elif float(line[-5]) < -1:
                 diffgene_p_down.write("\t".join(line) + "\n")
-        if float(line[-2]) < 0.05:
+                 
+        if float(line[12]) < 0.05:
             if float(line[-5]) > 1:
                 diffgene_q_up.write("\t".join(line) + "\n")
             elif float(line[-5]) < -1:
                 diffgene_q_down.write("\t".join(line) + "\n")
+
+        gene_log2FC_p_q_for_volcano.write("\t".join([line[2]] + [line[9]] + [line[11]] + [line[12]]) + "\n")
 
     cuffdiff_gene_exp_diff.close()
     diffgene_p_up.close()
     diffgene_p_down.close()
     diffgene_q_up.close()
     diffgene_q_down.close()
+    gene_log2FC_p_q_for_volcano.close()
+
+    r_script_volcano = """
+    
+    """
 
     
     
