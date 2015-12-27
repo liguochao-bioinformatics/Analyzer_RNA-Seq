@@ -12,22 +12,20 @@
 
 2. Preparation
 
-    (1) System
-        So far, Analyzer_RNA-Seq has only been tested to run sucessfully on Linux (RedHat, other Linux has not been tested). It might be available on Windows and Mac, or not.
+    (1) System: So far, Analyzer_RNA-Seq has only been tested to run sucessfully on Linux (RedHat, other Linux has not been tested). It might be available on Windows and Mac, or not.
 
-    (2) Requirement
-        Analyzer_RNA-Seq need many softwares and R packages installed. After once test, with these softwares with specific version and R packages, Analyzer_RNA-Seq works normally:
+    (2) Requirement: Analyzer_RNA-Seq need many softwares and R packages installed. After once test, with the softwares with specific version and R packages which are shown below, Analyzer_RNA-Seq works normally. Given the softwares noted below with other versions, Analyzer_RNA-Seq might work normally as well. However, I can not promise that. Thus various systems and more versions of softwares will be tested in the future.
+
 
         Python      v2.7.8
         Tophat      v2.0.9 (note: Tophat only works normally with lower version of samtools, such as v0.1.19. Higher version of samtools make Tophat CANNOT work, such as v1.2)
         Cufflinks   v2.0.2
         R           v3.1.1
         R packages: org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages it relies. 
-                    PS: You can use these two cmmands to install all of them:
+                    PS: You can use these three cmmands to install all of them:
+                    install.packages("ggplot2")
                     source("http://bioconductor.org/biocLite.R")
                     biocLite(c("org.Hs.eg.db", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
-
-        Given the softwares noted above with other versions, Analyzer_RNA-Seq might work normally as well. However, I can not promise. Thus more tests should be done in the future.
 
 
 
@@ -36,13 +34,16 @@
     (1) Download Analyzer_RNA-Seq on your computer.
 
     (2) In shell, run these commands:
-        cd /path_to_Analyzer_RNA-Seq 
-        chmod +x Analyzer_RNA-Seq
+
+        $ cd /path_to_Analyzer_RNA-Seq 
+        $ chmod +x Analyzer_RNA-Seq
 
     (3) Analyzer_RNA-Seq need the ABSOLUTE PATH of raw RNA-Seq data in fastq format and ABSOLUTE PATH of output directory. Therefore, there is no need to put Analyzer_RNA-Seq and your RNA-Seq data in the same directory. A better way is put it in environment PATH.
 
     (4) In shell, run this command to see help of Analyzer_RNA-Seq : 
-        /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
+     
+        $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
+         
         You will see the help information like this:
         
         Usage: Analyzer_RNA-Seq.py [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads
@@ -71,10 +72,11 @@
                                 nyl_group/ligch/YuHui/data/RNA-
                                 Seq/231-1/231-1_2.fastq)
         -t THREAD, --thread=THREAD
-                                The number of threads, default 8.
+                                The number of threads, default is 8.
 
-    (5) An example of running Analyzer_RNA-Seq is shown below:
-        /Analyzer_RNA-Seq \
+    (5) An example of running Analyzer_RNA-Seq in shell is shown below:
+
+        $ /Analyzer_RNA-Seq \
             -p /leofs/sunyl_group/ligch/Test/tophat+cufflinks \
             -g /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf \
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
