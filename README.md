@@ -14,16 +14,15 @@
 
     (1) System: So far, Analyzer_RNA-Seq has only been tested to run sucessfully on Linux (RedHat, other Linux has not been tested). It might be available on Windows and Mac, or not.
 
-    (2) Requirement: Analyzer_RNA-Seq needs many softwares and R packages to be installed. After once test, with the softwares with specific version and R packages which are shown below, Analyzer_RNA-Seq runs normally. Given the other versions, Analyzer_RNA-Seq might run normally as well. However, I can not give a promise. Thus various systems and more versions of softwares will be tested in the future.
+    (2) Requirements: Analyzer_RNA-Seq needs many softwares and R packages to be installed. After once test, with the softwares with specific version and R packages which are shown below, Analyzer_RNA-Seq runs normally. Given the other versions, Analyzer_RNA-Seq might run normally as well. However, I can not give a promise. Thus various systems and more versions of softwares will be tested in the future.
 
-        Python      v2.7.8
-        Tophat      v2.0.9 (note: Tophat only works normally with lower version of samtools, such as v0.1.19. Higher version of samtools make Tophat CANNOT work, such as v1.2)
-        Cufflinks   v2.0.2
-        R           v3.1.1
-        R packages: org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages it relies. 
+        Python          v2.7.8
+        Tophat          v2.0.9 (note: Tophat only works normally with lower version of samtools, such as v0.1.19. Higher version of samtools make Tophat CANNOT work, such as v1.2)
+        Cufflinks       v2.0.2
+        R               v3.1.1
+        R packages      ggplot2, org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages they rely on. 
 
-
-        You can use these three cmmands to install all of R packages:
+    (3) You can use these three cmmands in R to install all of required R packages:
 
         > install.packages("ggplot2")
         > source("http://bioconductor.org/biocLite.R")
@@ -35,10 +34,9 @@
 
     (1) Download Analyzer_RNA-Seq on your computer.
 
-    (2) In shell, run these commands:
+    (2) In shell, run this commands:
 
-        $ cd /path_to_Analyzer_RNA-Seq 
-        $ chmod +x Analyzer_RNA-Seq
+        $ chmod +x /path_to_Analyzer_RNA-Seq/Analyzer_RNA-Seq
 
     (3) Analyzer_RNA-Seq need the ABSOLUTE PATH of raw RNA-Seq data in fastq format and ABSOLUTE PATH of output directory. Therefore, there is no need to put Analyzer_RNA-Seq and your RNA-Seq data in the same directory. A better way is put it in environment PATH.
 
@@ -76,7 +74,7 @@
 
     (5) An example of running Analyzer_RNA-Seq in shell is shown below:
 
-        $ /Analyzer_RNA-Seq \
+        $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq \
             -p /leofs/sunyl_group/ligch/Test/tophat+cufflinks \
             -g /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf \
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
