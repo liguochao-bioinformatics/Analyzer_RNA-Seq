@@ -14,18 +14,20 @@
 
     (1) System: So far, Analyzer_RNA-Seq has only been tested to run sucessfully on Linux (RedHat, other Linux has not been tested). It might be available on Windows and Mac, or not.
 
-    (2) Requirement: Analyzer_RNA-Seq need many softwares and R packages installed. After once test, with the softwares with specific version and R packages which are shown below, Analyzer_RNA-Seq works normally. Given the softwares noted below with other versions, Analyzer_RNA-Seq might work normally as well. However, I can not promise that. Thus various systems and more versions of softwares will be tested in the future.
-
+    (2) Requirement: Analyzer_RNA-Seq needs many softwares and R packages to be installed. After once test, with the softwares with specific version and R packages which are shown below, Analyzer_RNA-Seq runs normally. Given the other versions, Analyzer_RNA-Seq might run normally as well. However, I can not give a promise. Thus various systems and more versions of softwares will be tested in the future.
 
         Python      v2.7.8
         Tophat      v2.0.9 (note: Tophat only works normally with lower version of samtools, such as v0.1.19. Higher version of samtools make Tophat CANNOT work, such as v1.2)
         Cufflinks   v2.0.2
         R           v3.1.1
         R packages: org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages it relies. 
-                    PS: You can use these three cmmands to install all of them:
-                    install.packages("ggplot2")
-                    source("http://bioconductor.org/biocLite.R")
-                    biocLite(c("org.Hs.eg.db", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
+
+
+        You can use these three cmmands to install all of R packages:
+
+        > install.packages("ggplot2")
+        > source("http://bioconductor.org/biocLite.R")
+        > biocLite(c("org.Hs.eg.db", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
 
 
 
@@ -40,11 +42,9 @@
 
     (3) Analyzer_RNA-Seq need the ABSOLUTE PATH of raw RNA-Seq data in fastq format and ABSOLUTE PATH of output directory. Therefore, there is no need to put Analyzer_RNA-Seq and your RNA-Seq data in the same directory. A better way is put it in environment PATH.
 
-    (4) In shell, run this command to see help of Analyzer_RNA-Seq : 
+    (4) In shell, run this command to see help document of Analyzer_RNA-Seq : 
      
         $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
-         
-        You will see the help information like this:
         
         Usage: Analyzer_RNA-Seq.py [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads
 
@@ -82,4 +82,4 @@
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
             -i 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq
 
-    (6) So far, it will only run tophat and cufflinks automatically with two RNA-Seq samples, which are sequnced by pair-end and no replicate is given. More functions (eg. various plots, GO and KEGG enrichment, etc.) are comming soon.
+    (6) So far, it only run tophat and cufflinks automatically with two RNA-Seq samples, which are sequnced by pair-end and no replicate is given. More functions (eg. various plots, GO and KEGG enrichment, etc.) are comming soon.
