@@ -39,7 +39,7 @@ parser.add_option("-t",
                   dest = "thread", 
                   type = "int",
                   default = 8,
-                  help = "The number of threads, default 8.") 
+                  help = "The number of threads, default is 8.") 
 
 (options, args) = parser.parse_args() 
 
