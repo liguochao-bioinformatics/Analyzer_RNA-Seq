@@ -1,0 +1,357 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+__metaclass__ = type
+# Author: Li Guochao
+
+
+import os
+from time import strftime as time
+
+
+### Preparation
+path = "/leofs/sunyl_group/ligch/Test/Analyzer_RNA-Seq"
+
+print 
+print "The path of project is: " + path + "\n"
+print "Tophat and cufflinks start at " + time('%Y-%m-%d %H:%M:%S') + "."
+
+os.chdir(path)
+
+run_time = open("Run_time", "w")
+
+cuffdiff_output_path =  os.path.join(path, "cufflinks", "cuffdiff")
+run_time.write("Analyzer starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
+
+### Step 5. Find genes with different expression level (up-regulated or down-regulated) and filter them by p or q value. Output results in text format. In addition, output another list of all the diff-expression genes for valcano plot. 
+print
+print "=" * 35 + " Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 35 + "\n"
+run_time.write("Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
+find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
+os.mkdir(find_diff_exp_gene_output_path)
+
+cuffdiff_gene_exp_diff       = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"                ) , "r")
+diffgene_p_up                = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up"                ) , "w")
+diffgene_p_down              = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down"              ) , "w")
+diffgene_q_up                = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up"                ) , "w")
+diffgene_q_down              = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down"              ) , "w")
+gene_log2FC_p_q_for_volcano  = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano"  ) , "w")
+
+diffgene_genenamelist_path_p_up   = os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_p_up"   )
+diffgene_genenamelist_path_p_down = os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_p_down" )
+diffgene_genenamelist_path_q_up   = os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_q_up"   )
+diffgene_genenamelist_path_q_down = os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_q_down" )
+diffgene_genenamelist_p_up   = open(diffgene_genenamelist_path_p_up   , "w")
+diffgene_genenamelist_p_down = open(diffgene_genenamelist_path_p_down , "w")
+diffgene_genenamelist_q_up   = open(diffgene_genenamelist_path_q_up   , "w")
+diffgene_genenamelist_q_down = open(diffgene_genenamelist_path_q_down , "w")
+
+cuffdiff_gene_exp_diff_lines = cuffdiff_gene_exp_diff.readlines()
+cuffdiff_gene_exp_diff_title = cuffdiff_gene_exp_diff_lines[0].strip().split("\t")
+
+diffgene_p_up.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+diffgene_p_down.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+diffgene_q_up.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+diffgene_q_down.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+gene_log2FC_p_q_for_volcano.write("\t".join([cuffdiff_gene_exp_diff_title[2]] \
+                                        + [cuffdiff_gene_exp_diff_title[9]] \
+                                        + [cuffdiff_gene_exp_diff_title[11]] \
+                                        + [cuffdiff_gene_exp_diff_title[12]]) \
+                                        + "\n")
+
+diffgene_gene_line = {}
+for line in cuffdiff_gene_exp_diff_lines[1:]:
+    line = line.strip().split("\t")
+    if line[2] == "-":                      # Go to the next line if genename in this line is "-" (none).
+        continue
+
+    if line[2] not in diffgene_gene_line:
+        diffgene_gene_line[line[2]] = line 
+    else:
+        diffgene_gene_line[line[2]] += line
+
+for line in diffgene_gene_line.values():
+    if len(line) > 14:                      
+        continue                            # There are some lines whose genenames are same and locuses are different. However, their expression patterns might be completely contrast, in other words, a gene might be both up-regulated and down-regulated in the same sample. In this version, Analyzer_RNA-Seq just simply deletes these lines. A better solution might come in the future.
+    else:
+        if float(line[11]) < 0.05:
+            if float(line[9]) > 1:
+                diffgene_p_up.write("\t".join(line) + "\n")
+                diffgene_genenamelist_p_up.write(line[2] + "\n")
+            elif float(line[9]) < -1:
+                diffgene_p_down.write("\t".join(line) + "\n")
+                diffgene_genenamelist_p_down.write(line[2] + "\n")
+                    
+        if float(line[12]) < 0.05:
+            if float(line[9]) > 1:
+                diffgene_q_up.write("\t".join(line) + "\n")
+                diffgene_genenamelist_q_up.write(line[2] + "\n")
+            elif float(line[9]) < -1:
+                diffgene_q_down.write("\t".join(line) + "\n")
+                diffgene_genenamelist_q_down.write(line[2] + "\n")
+
+        gene_log2FC_p_q_for_volcano.write("\t".join([line[2]] + [line[9]] + [line[11]] + [line[12]]) + "\n")
+
+cuffdiff_gene_exp_diff.close()
+diffgene_p_up.close()
+diffgene_p_down.close()
+diffgene_q_up.close()
+diffgene_q_down.close()
+gene_log2FC_p_q_for_volcano.close()
+diffgene_genenamelist_p_up.close()
+diffgene_genenamelist_p_down.close()
+diffgene_genenamelist_q_up.close()
+diffgene_genenamelist_q_down.close()
+
+r_script_summary_density_scatter = """
+# set work directory
+setwd("%(find_diff_exp_gene_output_path)s")
+
+library(cummeRbund)
+cuff_data <- readCufflinks("%(cuffdiff_output_path)s")
+
+sink("summary.txt")
+print(cuff_data)
+sink()
+
+tiff(file = "Density.tif", res = 600, width = 3260, height = 2000, compression = "lzw")
+csDensity(genes(cuff_data))
+dev.off()
+
+tiff(file = "Scatter.tif", res = 600, width = 2000, height = 2000, compression = "lzw")
+csScatter(genes(cuff_data), "N", "T")
+dev.off()
+""" % ( 
+    {
+        "cuffdiff_output_path"              : cuffdiff_output_path,
+        "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path
+    }
+    )
+
+r_script_summary_density_scatter_path_filename = os.path.join(find_diff_exp_gene_output_path, "r_script_summary_density_scatter")
+with open(r_script_summary_density_scatter_path_filename, "w") as r_script_summary_density_scatter_filehand:
+    r_script_summary_density_scatter_filehand.write(r_script_summary_density_scatter)
+os.system("Rscript " + r_script_summary_density_scatter_path_filename)
+os.system("rm " + r_script_summary_density_scatter_path_filename)
+
+r_script_volcano = """
+# set work directory
+setwd("%(find_diff_exp_gene_output_path)s")
+
+library(ggplot2)
+volcano_by_p_and_q<-read.table("gene_log2FC_p_q_for_volcano",head = T, row.names = 1)
+
+# Data preparation.
+df<-data.frame(volcano_by_p_and_q)
+log_FC<-c(volcano_by_p_and_q[,1])
+p<-c(volcano_by_p_and_q[,2])
+q<-c(volcano_by_p_and_q[,3])
+
+# Draw volcano plot of diffgene by p_value.
+df.G<-subset(df,log_FC <= -1 & p < 0.05)
+df.G<-cbind(df.G,rep(1,nrow(df.G)))
+colnames(df.G)[4]<-"Color"
+df.B<-subset(df,log_FC > -1 & log_FC < 1 | p > 0.05)
+df.B<-cbind(df.B,rep(2,nrow(df.B)))
+colnames(df.B)[4]<-"Color"
+df.R<-subset(df,log_FC >= 1 & p < 0.05)
+df.R<-cbind(df.R,rep(3,nrow(df.R)))
+colnames(df.R)[4]<-"Color"
+df.t<-rbind(df.G,df.B,df.R)
+df.t$Color <- as.factor(df.t$Color)
+tiff(file = paste0("Volcano_p.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
+ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,2]), color= Color )) + 
+geom_point(alpha = 0.5, size = 1) + 
+theme( legend.position = "none") + 
+xlim(c(-5, 5)) + 
+ylim(c(0, 20)) + 
+scale_color_manual(values = c("green", "grey", "red")) + 
+labs(x=expression(log[2](Fold_Change)), 
+    y=expression(-log[10](p_value))) + 
+theme(axis.title.x=element_text(size=12), 
+    axis.text.x=element_text(size=8)) + 
+theme(axis.title.y=element_text(size=12), 
+    axis.text.y=element_text(size=8))
+dev.off()
+
+# Draw volcano plot of diffgene by q_value.
+df.G<-subset(df,log_FC <= -1 & q < 0.05)
+df.G<-cbind(df.G,rep(1,nrow(df.G)))
+colnames(df.G)[4]<-"Color"
+df.B<-subset(df,log_FC > -1 & log_FC < 1 | q > 0.05)
+df.B<-cbind(df.B,rep(2,nrow(df.B)))
+colnames(df.B)[4]<-"Color"
+df.R<-subset(df,log_FC >= 1 & q < 0.05)
+df.R<-cbind(df.R,rep(3,nrow(df.R)))
+colnames(df.R)[4]<-"Color"
+df.t<-rbind(df.G,df.B,df.R)
+df.t$Color <- as.factor(df.t$Color)
+tiff(file = paste0("Volcano_q.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
+ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,3]), color= Color )) + 
+geom_point(alpha = 0.5, size = 1) + 
+theme( legend.position = "none") + 
+xlim(c(-5, 5)) + 
+ylim(c(0, 20)) + 
+scale_color_manual(values = c("green", "grey", "red")) + 
+labs(x=expression(log[2](Fold_Change)), 
+    y=expression(-log[10](q_value))) + 
+theme(axis.title.x=element_text(size=12), 
+    axis.text.x=element_text(size=8)) + 
+theme(axis.title.y=element_text(size=12), 
+    axis.text.y=element_text(size=8))
+dev.off()
+""" % ( 
+        {
+            "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path
+        }
+    )
+    
+r_script_volcano_path_filename = os.path.join(find_diff_exp_gene_output_path, "r_script_volcano")
+with open(r_script_volcano_path_filename, "w") as r_script_volcano_filehand:
+    r_script_volcano_filehand.write(r_script_volcano)
+os.system("Rscript " + r_script_volcano_path_filename)
+os.system("rm " + r_script_volcano_path_filename)
+os.system("rm " + os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano"))
+
+### Step 6. GO and KEGG enrichmant analysis by R.
+
+print
+print "=" * 30 + " GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
+run_time.write("Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
+GO_and_KEGG_enrichment_output_path          =  os.path.join(path, "GO_and_KEGG_enrichment_analysis"      )
+GO_and_KEGG_enrichment_output_path_p_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_up"   )
+GO_and_KEGG_enrichment_output_path_p_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_down" )
+GO_and_KEGG_enrichment_output_path_q_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_up"   )
+GO_and_KEGG_enrichment_output_path_q_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_down" )
+os.mkdir(GO_and_KEGG_enrichment_output_path)
+os.mkdir(GO_and_KEGG_enrichment_output_path_p_up)
+os.mkdir(GO_and_KEGG_enrichment_output_path_p_down)
+os.mkdir(GO_and_KEGG_enrichment_output_path_q_up)
+os.mkdir(GO_and_KEGG_enrichment_output_path_q_down)
+
+print GO_and_KEGG_enrichment_output_path_p_up
+print diffgene_genenamelist_path_p_up
+
+r_script_GO_and_KEGG_enrichment = """
+# Use "GOstats" package to do GO or KEGG enrichment analysis of given gene symbols.
+
+# library necessary packages
+library("org.Hs.eg.db")
+library("GSEABase")
+library("GOstats")
+library(Category)
+library("pathview")
+
+GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
+  # setwd and get current_wd
+  setwd(work_directory)
+  wd <- getwd()
+  
+  # read a gene name list for analysis
+  genes <- read.table(data_directory)
+  genes <- as.vector(unlist(genes))
+  
+  
+  
+  # GO and KEGG enrichment analysis
+  
+  # 1.mkdir
+  GO_result_directory <- paste0(wd, "/GO_enrichment_result")
+  dir.create(GO_result_directory)
+  KEGG_result_directory <- paste0(wd, "/KEGG_enrichment_result")
+  dir.create(KEGG_result_directory)
+
+  # 2.GO enrichment analysis
+  # (1) cd
+  setwd(GO_result_directory)
+  
+  # (2) analysis
+  goAnn <- get("org.Hs.egGO")
+  universe <- Lkeys(goAnn)
+  entrezIDs <- mget(genes, org.Hs.egSYMBOL2EG, ifnotfound=NA)
+  entrezIDs <- as.character(entrezIDs)
+  for (m in c("BP","CC","MF")) {
+    params <- new("GOHyperGParams", geneIds=entrezIDs, universeGeneIds=universe, annotation="org.Hs.eg.db", ontology = m, pvalueCutoff=0.05, conditional=FALSE, testDirection="over")
+    over <- hyperGTest(params)
+    glist <- geneIdsByCategory(over)
+    glist <- sapply(glist, function(.ids) {
+      .sym <- mget(.ids, envir=org.Hs.egSYMBOL, ifnotfound=NA)
+      .sym[is.na(.sym)] <- .ids[is.na(.sym)]
+      paste(.sym, collapse=";")
+    })
+    gene_ontology <- summary(over)
+    gene_ontology$Symbols <- glist[as.character(unlist(gene_ontology[1]))]
+    write.table(gene_ontology,paste0("GO_enrichment_result_", m, ".txt"),sep = "\t",row.names = FALSE)
+  }
+  
+  # (3) combination of 3 ontologys
+  bp <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_BP.txt"), sep = "\t", header = TRUE)
+  bp_ParentTerm <- rep("Biological Process", length(bp$Term))
+  go_enrichment_analysis_reuslt_BP <- cbind(bp[1:6],bp_ParentTerm,bp[7:8])
+  names(go_enrichment_analysis_reuslt_BP)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
+  cc <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_CC.txt"), sep = "\t", header = TRUE)
+  cc_ParentTerm <- rep("Cellular Components", length(cc$Term))
+  go_enrichment_analysis_reuslt_CC <- cbind(cc[1:6],cc_ParentTerm,cc[7:8])
+  names(go_enrichment_analysis_reuslt_CC)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
+  mf <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_MF.txt"), sep = "\t", header = TRUE)
+  mf_ParentTerm <- rep("Molecullar Function", length(mf$Term))
+  go_enrichment_analysis_reuslt_MF <- cbind(mf[1:6],mf_ParentTerm,mf[7:8])
+  names(go_enrichment_analysis_reuslt_MF)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
+  go_enrichment_analysis_reuslt_all <- rbind(go_enrichment_analysis_reuslt_BP,go_enrichment_analysis_reuslt_CC,go_enrichment_analysis_reuslt_MF)
+  write.table(go_enrichment_analysis_reuslt_all, paste0("GO_enrichment_result_ALL.txt"), sep = "\t", row.names = FALSE)
+  
+  
+  
+  # 3. KEGG enrichment analysis
+  # (1) cd
+  setwd(KEGG_result_directory)
+  
+  # (2) analysis
+  keggAnn <- get("org.Hs.egPATH")
+  universe <- Lkeys(keggAnn)
+  params <- new("KEGGHyperGParams", geneIds=entrezIDs, universeGeneIds=universe, annotation="org.Hs.eg.db", categoryName="KEGG", pvalueCutoff=0.05,testDirection="over")
+  over <- hyperGTest(params)
+  kegg <- summary(over)
+  glist <- geneIdsByCategory(over)
+  glist <- sapply(glist, function(.ids) {
+    .sym <- mget(.ids, envir=org.Hs.egSYMBOL, ifnotfound=NA)
+    .sym[is.na(.sym)] <- .ids[is.na(.sym)]
+    paste(.sym, collapse=";")
+  })
+  kegg$Symbols <- glist[as.character(kegg$KEGGID)]
+  gIds <- mget(genes, org.Hs.egSYMBOL2EG, ifnotfound=NA)
+  gEns <- unlist(gIds)
+  gene.data <- rep(1, length(gEns))
+  names(gene.data) <- gEns
+  for(i in 1:length(kegg$KEGGID)){
+    pv.out <- pathview(gene.data, pathway.id=as.character(kegg$KEGGID)[i], species="hsa", out.suffix="pathview", kegg.native=T)
+  }
+}
+
+GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_up)s"   , "%(diffgene_genenamelist_path_p_up)s"   )
+GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_down)s" , "%(diffgene_genenamelist_path_p_down)s" )
+GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_up)s"   , "%(diffgene_genenamelist_path_q_up)s"   )
+GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_down)s" , "%(diffgene_genenamelist_path_q_down)s" )
+""" % ( 
+        {
+            "GO_and_KEGG_enrichment_output_path_p_up"       :  GO_and_KEGG_enrichment_output_path_p_up,
+            "diffgene_genenamelist_path_p_up"               :  diffgene_genenamelist_path_p_up,
+            "GO_and_KEGG_enrichment_output_path_p_down"     :  GO_and_KEGG_enrichment_output_path_p_down,
+            "diffgene_genenamelist_path_p_down"             :  diffgene_genenamelist_path_p_down,
+            "GO_and_KEGG_enrichment_output_path_q_up"       :  GO_and_KEGG_enrichment_output_path_q_up,
+            "diffgene_genenamelist_path_q_up"               :  diffgene_genenamelist_path_q_up,
+            "GO_and_KEGG_enrichment_output_path_q_down"     :  GO_and_KEGG_enrichment_output_path_q_down,
+            "diffgene_genenamelist_path_q_down"             :  diffgene_genenamelist_path_q_down
+        }
+    )
+
+r_script_GO_and_KEGG_enrichment_path_filename = os.path.join(GO_and_KEGG_enrichment_output_path, "r_script_GO_and_KEGG_enrichment")
+with open(r_script_GO_and_KEGG_enrichment_path_filename, "w") as r_script_GO_and_KEGG_enrichment_filehand:
+    r_script_GO_and_KEGG_enrichment_filehand.write(r_script_GO_and_KEGG_enrichment)
+os.system("Rscript " + r_script_GO_and_KEGG_enrichment_path_filename)
+os.system("rm " + r_script_GO_and_KEGG_enrichment_path_filename)
+
+run_time.write("Analyzer_RNA-Seq ends at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+run_time.close()
