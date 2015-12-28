@@ -39,7 +39,7 @@ parser.add_option("-t",
                   dest = "thread", 
                   type = "int",
                   default = 8,
-                  help = "The number of threads, default 8.") 
+                  help = "The number of threads, default is 8.") 
 
 (options, args) = parser.parse_args() 
 
@@ -65,6 +65,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     os.chdir(path)
 
     run_time = open("Run_time", "w")
+
 
 ### Step 1. tophat
     def tophat(path, gtf, fa, group, fq_1, fq_2, thread):
@@ -96,6 +97,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     tophat(path, gtf, fa, group_1, fq_group_1[0], fq_group_1[1], thread)
     tophat(path, gtf, fa, group_2, fq_group_2[0], fq_group_2[1], thread)
 
+
 ### Step 2. cufflinks
     def cufflinks(path, group, thread):
         cufflinks_group_path =  os.path.join(path, "cufflinks", "cufflinks", group)
@@ -120,6 +122,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     os.mkdir( os.path.join(path, "cufflinks", "cufflinks") )
     cufflinks(path, group_1, thread)
     cufflinks(path, group_2, thread)
+
 
 ### Step 3. cuffmerge
     def cuffmerge(cuffmerge_output_path, gtf, fa, thread, assemblies):
@@ -151,6 +154,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
         cuffmerge_assemblies.write(out_line_1 + "\n" + out_line_2 + "\n")
     assemblies = os.path.join(cuffmerge_output_path, "assemblies.txt")
     cuffmerge(cuffmerge_output_path, gtf, fa, thread, assemblies)
+
 
 ### Step 4. cuffdiff
     def cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam):
@@ -185,6 +189,195 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam)
 
     run_time.write("=" * 40 + " Analyzer ends at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
+
+
+### Step 5. Find genes with different expression level (up-regulated or down-regulated) and filter them by p or q value. Output results in text format. In addition, output another list of all the diff-expression genes for valcano plot. 
+    print
+    print "=" * 40 + " Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
+    run_time.write("=" * 40 + " Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
+
+    find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
+    os.mkdir(find_diff_exp_gene_output_path)
+
+    cuffdiff_gene_exp_diff       = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"                ) , "r")
+    diffgene_p_up                = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up"                ) , "w")
+    diffgene_p_down              = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down"              ) , "w")
+    diffgene_q_up                = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up"                ) , "w")
+    diffgene_q_down              = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down"              ) , "w")
+    gene_log2FC_p_q_for_volcano  = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano"  ) , "w")
+    diffgene_genenamelist_p_up   = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_p_up"   ) , "w")
+    diffgene_genenamelist_p_down = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_p_down" ) , "w")
+    diffgene_genenamelist_q_up   = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_q_up"   ) , "w")
+    diffgene_genenamelist_q_down = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_q_down" ) , "w")
+
+    cuffdiff_gene_exp_diff_lines = cuffdiff_gene_exp_diff.readlines()
+    cuffdiff_gene_exp_diff_title = cuffdiff_gene_exp_diff_lines[0].strip().split("\t")
+
+    diffgene_p_up.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+    diffgene_p_down.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+    diffgene_q_up.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+    diffgene_q_down.write("\t".join(cuffdiff_gene_exp_diff_title) + "\n")
+    gene_log2FC_p_q_for_volcano.write("\t".join([cuffdiff_gene_exp_diff_title[2]] \
+                                            + [cuffdiff_gene_exp_diff_title[9]] \
+                                            + [cuffdiff_gene_exp_diff_title[11]] \
+                                            + [cuffdiff_gene_exp_diff_title[12]]) \
+                                            + "\n")
+
+    diffgene_gene_line = {}
+    for line in cuffdiff_gene_exp_diff_lines[1:]:
+        line = line.strip().split("\t")
+        if line[2] == "-":                      # Go to the next line if genename in this line is "-" (none).
+            continue
+
+        if line[2] not in diffgene_gene_line:
+            diffgene_gene_line[line[2]] = line 
+        else:
+            diffgene_gene_line[line[2]] += line
+
+    for line in diffgene_gene_line.values():
+        if len(line) > 14:                      
+            continue                            # There are some lines whose genenames are same and locuses are different. However, their expression patterns might be completely contrast, in other words, a gene might be both up-regulated and down-regulated in the same sample. In this version, Analyzer_RNA-Seq just simply deletes these lines. A better solution might come in the future.
+        else:
+            if float(line[11]) < 0.05:
+                if float(line[9]) > 1:
+                    diffgene_p_up.write("\t".join(line) + "\n")
+                    diffgene_genenamelist_p_up.write(line[2] + "\n")
+                elif float(line[9]) < -1:
+                    diffgene_p_down.write("\t".join(line) + "\n")
+                    diffgene_genenamelist_p_down.write(line[2] + "\n")
+                        
+            if float(line[12]) < 0.05:
+                if float(line[9]) > 1:
+                    diffgene_q_up.write("\t".join(line) + "\n")
+                    diffgene_genenamelist_q_up.write(line[2] + "\n")
+                elif float(line[9]) < -1:
+                    diffgene_q_down.write("\t".join(line) + "\n")
+                    diffgene_genenamelist_q_down.write(line[2] + "\n")
+
+            gene_log2FC_p_q_for_volcano.write("\t".join([line[2]] + [line[9]] + [line[11]] + [line[12]]) + "\n")
+
+    cuffdiff_gene_exp_diff.close()
+    diffgene_p_up.close()
+    diffgene_p_down.close()
+    diffgene_q_up.close()
+    diffgene_q_down.close()
+    gene_log2FC_p_q_for_volcano.close()
+    diffgene_genenamelist_p_up.close()
+    diffgene_genenamelist_p_down.close()
+    diffgene_genenamelist_q_up.close()
+    diffgene_genenamelist_q_down.close()
+
+    r_script_summary_density_scatter = """
+# set work directory
+setwd("%(find_diff_exp_gene_output_path)s")
+
+library(cummeRbund)
+cuff_data <- readCufflinks("%(cuffdiff_output_path)s")
+
+sink("summary.txt")
+print(cuff_data)
+sink()
+
+tiff(file = "Density.tif", res = 600, width = 3260, height = 2000, compression = "lzw")
+csDensity(genes(cuff_data))
+dev.off()
+
+tiff(file = "Scatter.tif", res = 600, width = 2000, height = 2000, compression = "lzw")
+csScatter(genes(cuff_data), "N", "T")
+dev.off()
+""" % ( 
+        {
+            "cuffdiff_output_path"              : cuffdiff_output_path,
+            "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path
+        }
+      )
+
+    r_script_summary_density_scatter_path_filename = os.path.join(find_diff_exp_gene_output_path, "r_script_summary_density_scatter")
+    with open(r_script_summary_density_scatter_path_filename, "w") as r_script_summary_density_scatter_filehand:
+        r_script_summary_density_scatter_filehand.write(r_script_summary_density_scatter)
+    os.system("Rscript " + r_script_summary_density_scatter_path_filename)
+    os.system("rm " + r_script_summary_density_scatter_path_filename)
+
+    r_script_volcano = """
+# set work directory
+setwd("%(find_diff_exp_gene_output_path)s")
+
+library(ggplot2)
+volcano_by_p_and_q<-read.table("gene_log2FC_p_q_for_volcano",head = T, row.names = 1)
+
+# Data preparation.
+df<-data.frame(volcano_by_p_and_q)
+log_FC<-c(volcano_by_p_and_q[,1])
+p<-c(volcano_by_p_and_q[,2])
+q<-c(volcano_by_p_and_q[,3])
+
+# Draw volcano plot of diffgene by p_value.
+df.G<-subset(df,log_FC <= -1 & p < 0.05)
+df.G<-cbind(df.G,rep(1,nrow(df.G)))
+colnames(df.G)[4]<-"Color"
+df.B<-subset(df,log_FC > -1 & log_FC < 1 | p > 0.05)
+df.B<-cbind(df.B,rep(2,nrow(df.B)))
+colnames(df.B)[4]<-"Color"
+df.R<-subset(df,log_FC >= 1 & p < 0.05)
+df.R<-cbind(df.R,rep(3,nrow(df.R)))
+colnames(df.R)[4]<-"Color"
+df.t<-rbind(df.G,df.B,df.R)
+df.t$Color <- as.factor(df.t$Color)
+tiff(file = paste0("Volcano_p.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
+ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,2]), color= Color )) + 
+  geom_point(alpha = 0.5, size = 1) + 
+  theme( legend.position = "none") + 
+  xlim(c(-5, 5)) + 
+  ylim(c(0, 20)) + 
+  scale_color_manual(values = c("green", "grey", "red")) + 
+  labs(x=expression(log[2](Fold_Change)), 
+       y=expression(-log[10](p_value))) + 
+  theme(axis.title.x=element_text(size=12), 
+        axis.text.x=element_text(size=8)) + 
+  theme(axis.title.y=element_text(size=12), 
+        axis.text.y=element_text(size=8))
+dev.off()
+
+# Draw volcano plot of diffgene by q_value.
+df.G<-subset(df,log_FC <= -1 & q < 0.05)
+df.G<-cbind(df.G,rep(1,nrow(df.G)))
+colnames(df.G)[4]<-"Color"
+df.B<-subset(df,log_FC > -1 & log_FC < 1 | q > 0.05)
+df.B<-cbind(df.B,rep(2,nrow(df.B)))
+colnames(df.B)[4]<-"Color"
+df.R<-subset(df,log_FC >= 1 & q < 0.05)
+df.R<-cbind(df.R,rep(3,nrow(df.R)))
+colnames(df.R)[4]<-"Color"
+df.t<-rbind(df.G,df.B,df.R)
+df.t$Color <- as.factor(df.t$Color)
+tiff(file = paste0("Volcano_q.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
+ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,3]), color= Color )) + 
+  geom_point(alpha = 0.5, size = 1) + 
+  theme( legend.position = "none") + 
+  xlim(c(-5, 5)) + 
+  ylim(c(0, 20)) + 
+  scale_color_manual(values = c("green", "grey", "red")) + 
+  labs(x=expression(log[2](Fold_Change)), 
+       y=expression(-log[10](q_value))) + 
+  theme(axis.title.x=element_text(size=12), 
+        axis.text.x=element_text(size=8)) + 
+  theme(axis.title.y=element_text(size=12), 
+        axis.text.y=element_text(size=8))
+dev.off()
+""" % ( 
+        {
+            "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path
+        }
+      )
+        
+    r_script_volcano_path_filename = os.path.join(find_diff_exp_gene_output_path, "r_script_volcano")
+    with open(r_script_volcano_path_filename, "w") as r_script_volcano_filehand:
+        r_script_volcano_filehand.write(r_script_volcano)
+    os.system("Rscript " + r_script_volcano_path_filename)
+    os.system("rm " + r_script_volcano_path_filename)
+    os.system("rm " + os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano.txt"))
+    
+    
 
 else:
     print "Error: There is not enough parameters!"
