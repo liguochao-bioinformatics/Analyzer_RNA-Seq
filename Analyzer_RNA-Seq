@@ -391,7 +391,7 @@ dev.off()
 
     print
     print "=" * 30 + " GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
-    run_time.write("Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    run_time.write("GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     GO_and_KEGG_enrichment_output_path          =  os.path.join(path, "GO_and_KEGG_enrichment_analysis"      )
     GO_and_KEGG_enrichment_output_path_p_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_up"   )
