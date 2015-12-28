@@ -58,16 +58,20 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     group_2         = groups_and_fqs[1].split(",")[0]
     fq_group_2      = groups_and_fqs[1].split(",")[1:]
 
-    print 
-    print "The path of project is: " + path + "\n"
-    print "Tophat and cufflinks start at " + time('%Y-%m-%d %H:%M:%S') + "."
-
     os.chdir(path)
 
     run_time = open("Run_time", "w")
 
+    print 
+    print "=" * 40 + " Analyzer_RNA-Seq starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
+    run_time.write("Analyzer_RNA-Seq starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
 
 ### Step 1. tophat
+    print
+    print "=" * 40 + " 1. Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
+    run_time.write("1. Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
     def tophat(path, gtf, fa, group, fq_1, fq_2, thread):
         tophat_group_path = os.path.join(path, "tophat", group)
         os.mkdir(tophat_group_path)
@@ -90,15 +94,16 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
               )
         os.system(tophat_cmdline)
 
-    print
-    print "=" * 40 + " Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("=" * 40 + " Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
     os.mkdir( os.path.join(path, "tophat") )
     tophat(path, gtf, fa, group_1, fq_group_1[0], fq_group_1[1], thread)
     tophat(path, gtf, fa, group_2, fq_group_2[0], fq_group_2[1], thread)
 
 
 ### Step 2. cufflinks
+    print
+    print "=" * 40 + " 2. Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
+    run_time.write("2. Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
     def cufflinks(path, group, thread):
         cufflinks_group_path =  os.path.join(path, "cufflinks", "cufflinks", group)
         os.mkdir(cufflinks_group_path)
@@ -115,9 +120,6 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
               )
         os.system(cufflinks_cmdline)
 
-    print
-    print "=" * 40 + " Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("=" * 40 + " Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
     os.mkdir( os.path.join(path, "cufflinks") )
     os.mkdir( os.path.join(path, "cufflinks", "cufflinks") )
     cufflinks(path, group_1, thread)
@@ -125,6 +127,10 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 
 
 ### Step 3. cuffmerge
+    print
+    print "=" * 40 + " 3. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
+    run_time.write("3. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
     def cuffmerge(cuffmerge_output_path, gtf, fa, thread, assemblies):
         cuffmerge_cmdline = """cuffmerge \
             -o %(cuffmerge_output_path)s \
@@ -143,9 +149,6 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
               )
         os.system(cuffmerge_cmdline)
 
-    print
-    print "=" * 40 + " Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("=" * 40 + " Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
     cuffmerge_output_path = os.path.join(path, "cufflinks", "cuffmerge") 
     os.mkdir(cuffmerge_output_path)
     with open(os.path.join(cuffmerge_output_path, "assemblies.txt"), "w") as cuffmerge_assemblies:
@@ -157,6 +160,10 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 
 
 ### Step 4. cuffdiff
+    print
+    print "=" * 40 + " 4. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
+    run_time.write("4. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+
     def cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam):
         cuffdiff_cmdline = """cuffdiff \
             -o %(cuffdiff_output_path)s \
@@ -178,9 +185,6 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
               )
         os.system(cuffdiff_cmdline)
 
-    print
-    print "=" * 40 + " Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("=" * 40 + " Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
     cuffdiff_output_path =  os.path.join(path, "cufflinks", "cuffdiff")
     os.mkdir(cuffdiff_output_path)
     merged_gtf = os.path.join(cuffmerge_output_path, "merged.gtf")
@@ -193,8 +197,8 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 
 ### Step 5. Find genes with different expression level (up-regulated or down-regulated) and filter them by p or q value. Output results in text format. In addition, output another list of all the diff-expression genes for valcano plot. 
     print
-    print "=" * 40 + " Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("=" * 40 + " Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
+    print "=" * 35 + " 5. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 35 + ".\n"
+    run_time.write("5. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
     os.mkdir(find_diff_exp_gene_output_path)
@@ -378,6 +382,14 @@ dev.off()
     os.system("rm " + os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano.txt"))
     
     
+
+
+
+
+    
+    run_time.write("Analyzer_RNA-Seq ends at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    run_time.close()
+
 
 else:
     print "Error: There is not enough parameters!"
