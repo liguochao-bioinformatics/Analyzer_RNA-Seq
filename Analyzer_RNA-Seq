@@ -199,12 +199,12 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
     os.mkdir(find_diff_exp_gene_output_path)
 
-    cuffdiff_gene_exp_diff      = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"              ) , "r")
-    diffgene_p_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up"              ) , "w")
-    diffgene_p_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down"            ) , "w")
-    diffgene_q_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up"              ) , "w")
-    diffgene_q_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down"            ) , "w")
-    gene_log2FC_p_q_for_volcano = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano") , "w")
+    cuffdiff_gene_exp_diff      = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"                  ) , "r")
+    diffgene_p_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up.txt"              ) , "w")
+    diffgene_p_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down.txt"            ) , "w")
+    diffgene_q_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up.txt"              ) , "w")
+    diffgene_q_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down.txt"            ) , "w")
+    gene_log2FC_p_q_for_volcano = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano.txt") , "w")
 
     cuffdiff_gene_exp_diff_lines = cuffdiff_gene_exp_diff.readlines()
     cuffdiff_gene_exp_diff_title = cuffdiff_gene_exp_diff_lines[0].strip().split("\t")
@@ -363,7 +363,7 @@ dev.off()
         r_script_volcano_filehand.write(r_script_volcano)
     os.system("Rscript " + r_script_volcano_path_filename)
     os.system("rm " + r_script_volcano_path_filename)
-    os.system("rm " + os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano"))
+    os.system("rm " + os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano.txt"))
     
     
 
