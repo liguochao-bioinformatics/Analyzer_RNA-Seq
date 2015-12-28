@@ -7,7 +7,7 @@ import os
 from time import strftime as time
 from optparse import OptionParser
 
-parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads", version="Version: 0.2")
+parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads", version="Version: 0.3")
 
 parser.add_option("-p", 
                   "--path", 
