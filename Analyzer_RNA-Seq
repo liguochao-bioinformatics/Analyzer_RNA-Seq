@@ -199,12 +199,16 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
     os.mkdir(find_diff_exp_gene_output_path)
 
-    cuffdiff_gene_exp_diff      = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"                  ) , "r")
-    diffgene_p_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up.txt"              ) , "w")
-    diffgene_p_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down.txt"            ) , "w")
-    diffgene_q_up               = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up.txt"              ) , "w")
-    diffgene_q_down             = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down.txt"            ) , "w")
-    gene_log2FC_p_q_for_volcano = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano.txt") , "w")
+    cuffdiff_gene_exp_diff       = open(os.path.join(cuffdiff_output_path           , "gene_exp.diff"                ) , "r")
+    diffgene_p_up                = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_up"                ) , "w")
+    diffgene_p_down              = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_p_down"              ) , "w")
+    diffgene_q_up                = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_up"                ) , "w")
+    diffgene_q_down              = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_q_down"              ) , "w")
+    gene_log2FC_p_q_for_volcano  = open(os.path.join(find_diff_exp_gene_output_path , "gene_log2FC_p_q_for_volcano"  ) , "w")
+    diffgene_genenamelist_p_up   = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_p_up"   ) , "w")
+    diffgene_genenamelist_p_down = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_p_down" ) , "w")
+    diffgene_genenamelist_q_up   = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_q_up"   ) , "w")
+    diffgene_genenamelist_q_down = open(os.path.join(find_diff_exp_gene_output_path , "diffgene_genenamelist_q_down" ) , "w")
 
     cuffdiff_gene_exp_diff_lines = cuffdiff_gene_exp_diff.readlines()
     cuffdiff_gene_exp_diff_title = cuffdiff_gene_exp_diff_lines[0].strip().split("\t")
@@ -235,16 +239,20 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
             continue                            # There are some lines whose genenames are same and locuses are different. However, their expression patterns might be completely contrast, in other words, a gene might be both up-regulated and down-regulated in the same sample. In this version, Analyzer_RNA-Seq just simply deletes these lines. A better solution might come in the future.
         else:
             if float(line[11]) < 0.05:
-                if float(line[-5]) > 1:
+                if float(line[9]) > 1:
                     diffgene_p_up.write("\t".join(line) + "\n")
-                elif float(line[-5]) < -1:
+                    diffgene_genenamelist_p_up.write(line[2] + "\n")
+                elif float(line[9]) < -1:
                     diffgene_p_down.write("\t".join(line) + "\n")
+                    diffgene_genenamelist_p_down.write(line[2] + "\n")
                         
             if float(line[12]) < 0.05:
-                if float(line[-5]) > 1:
+                if float(line[9]) > 1:
                     diffgene_q_up.write("\t".join(line) + "\n")
-                elif float(line[-5]) < -1:
+                    diffgene_genenamelist_q_up.write(line[2] + "\n")
+                elif float(line[9]) < -1:
                     diffgene_q_down.write("\t".join(line) + "\n")
+                    diffgene_genenamelist_q_down.write(line[2] + "\n")
 
             gene_log2FC_p_q_for_volcano.write("\t".join([line[2]] + [line[9]] + [line[11]] + [line[12]]) + "\n")
 
@@ -254,6 +262,10 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     diffgene_q_up.close()
     diffgene_q_down.close()
     gene_log2FC_p_q_for_volcano.close()
+    diffgene_genenamelist_p_up.close()
+    diffgene_genenamelist_p_down.close()
+    diffgene_genenamelist_q_up.close()
+    diffgene_genenamelist_q_down.close()
 
     r_script_summary_density_scatter = """
 # set work directory
