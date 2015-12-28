@@ -1,7 +1,7 @@
 # Analyzer_RNA-Seq
 # Author: Li Guochao
 # e-mail: stevelee0201@163.com
-# Version of README: 0.2
+# Version of README: 0.3
 
 
 
@@ -80,4 +80,4 @@
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
             -i 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq
 
-    (6) So far, it only run tophat and cufflinks automatically with two RNA-Seq samples, which are sequnced by pair-end and no replicate is given. More functions (eg. various plots, GO and KEGG enrichment, etc.) are comming soon.
+    (6) So far, it runs tophat and cufflinks automatically with two RNA-Seq samples, which are sequnced by pair-end and no replicate is given. Then a summary of result of cuffdiff, raw information of genes with different expression levels (generated from /cufflinks/cuffdiff/gene_exp.diff) by p or q value are outputed in text format. A density plot, a scatter plot and a volcano plot are outputed for visulizing these results. Finally, GO and KEGG enrichment analysis are done by R, whose results are outputed in text format (for GO) and png format (for KEGG), respectively. More functions (eg. heatmap) are comming soon.
