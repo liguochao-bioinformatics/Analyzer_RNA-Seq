@@ -1,7 +1,7 @@
 # Analyzer_RNA-Seq
 # Author: Li Guochao
 # e-mail: stevelee0201@163.com
-# Version of README: 0.3
+# Version of README: 0.4
 
 
 
@@ -20,13 +20,13 @@
         Tophat          v2.0.9 (note: Tophat only works normally with lower version of samtools, such as v0.1.19. Higher version of samtools make Tophat CANNOT work, such as v1.2)
         Cufflinks       v2.0.2
         R               v3.1.1
-        R packages      ggplot2, org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages they rely on. 
+        R packages      ggplot2, pheatmap, org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages they rely on. 
 
     (3) You can use these three cmmands in R to install all of required R packages:
 
         > install.packages("ggplot2")
         > source("http://bioconductor.org/biocLite.R")
-        > biocLite(c("org.Hs.eg.db", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
+        > biocLite(c("org.Hs.eg.db", "pheatmap", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
 
 
 
@@ -80,4 +80,16 @@
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
             -i 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq
 
-    (6) So far, it runs tophat and cufflinks automatically with two RNA-Seq samples, which are sequnced by pair-end and no replicate is given. Then a summary of result of cuffdiff, raw information of genes with different expression levels (generated from /cufflinks/cuffdiff/gene_exp.diff) by p or q value are outputed in text format. A density plot, a scatter plot and a volcano plot are outputed for visulizing these results. Finally, GO and KEGG enrichment analysis are done by R, whose results are outputed in text format (for GO) and png format (for KEGG), respectively. More functions (eg. heatmap) are comming soon.
+
+
+4. Analyzer_RNA-Seq's functions:
+
+    (1) Analyzer_RNA-Seq runs tophat and cufflinks automatically with two RNA-Seq samples, which are sequnced by pair-end and no replicate is given. 
+    
+    (2) A summary of result of cuffdiff, raw information of genes with different expression levels (generated from /cufflinks/cuffdiff/gene_exp.diff) by p or q value are outputed in text format.
+    
+    (3) Visulization: A density plot, a scatter plot and a volcano plot are outputed in tif format. Then various heatmaps are drawn by different methods of clustering and measurements of distance. You can choose one from those heatmaps according to your own biological problem. 
+    
+    (4) GO and KEGG enrichment analysis are done by R, whose results are outputed in text format (for GO) and png format (for KEGG), respectively. 
+    
+    (5) More functions (eg. saturation analysis) are comming soon.
