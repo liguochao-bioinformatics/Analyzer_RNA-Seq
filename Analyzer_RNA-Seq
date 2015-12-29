@@ -316,22 +316,22 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 
     r_script_summary_density_scatter = """
 # set work directory
-    setwd("%(find_diff_exp_gene_output_path)s")
+setwd("%(find_diff_exp_gene_output_path)s")
 
-    library(cummeRbund)
-    cuff_data <- readCufflinks("%(cuffdiff_output_path)s")
+library(cummeRbund)
+cuff_data <- readCufflinks("%(cuffdiff_output_path)s")
 
-    sink("summary.txt")
-    print(cuff_data)
-    sink()
+sink("summary.txt")
+print(cuff_data)
+sink()
 
-    tiff(file = "Density.tif", res = 600, width = 3260, height = 2000, compression = "lzw")
-    csDensity(genes(cuff_data))
-    dev.off()
+tiff(file = "Density.tif", res = 600, width = 3260, height = 2000, compression = "lzw")
+csDensity(genes(cuff_data))
+dev.off()
 
-    tiff(file = "Scatter.tif", res = 600, width = 2000, height = 2000, compression = "lzw")
-    csScatter(genes(cuff_data), "N", "T")
-    dev.off()
+tiff(file = "Scatter.tif", res = 600, width = 2000, height = 2000, compression = "lzw")
+csScatter(genes(cuff_data), "N", "T")
+dev.off()
     """ % ( 
         {
             "cuffdiff_output_path"              : cuffdiff_output_path,
@@ -347,70 +347,64 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 
     r_script_volcano = """
 # set work directory
-    setwd("%(find_diff_exp_gene_output_path)s")
+setwd("%(find_diff_exp_gene_output_path)s")
 
-    library(ggplot2)
-    volcano_by_p_and_q<-read.table("gene_log2FC_p_q_for_volcano",head = T, row.names = 1)
+library(ggplot2)
+volcano_by_p_and_q<-read.table("gene_log2FC_p_q_for_volcano",head = T, row.names = 1)
 
 # Data preparation.
-    df<-data.frame(volcano_by_p_and_q)
-    log_FC<-c(volcano_by_p_and_q[,1])
-    p<-c(volcano_by_p_and_q[,2])
-    q<-c(volcano_by_p_and_q[,3])
+df<-data.frame(volcano_by_p_and_q)
+log_FC<-c(volcano_by_p_and_q[,1])
+p<-c(volcano_by_p_and_q[,2])
+q<-c(volcano_by_p_and_q[,3])
 
 # Draw volcano plot of diffgene by p_value.
-    df.G<-subset(df,log_FC <= -1 & p < 0.05)
-    df.G<-cbind(df.G,rep(1,nrow(df.G)))
-    colnames(df.G)[4]<-"Color"
-    df.B<-subset(df,log_FC > -1 & log_FC < 1 | p > 0.05)
-    df.B<-cbind(df.B,rep(2,nrow(df.B)))
-    colnames(df.B)[4]<-"Color"
-    df.R<-subset(df,log_FC >= 1 & p < 0.05)
-    df.R<-cbind(df.R,rep(3,nrow(df.R)))
-    colnames(df.R)[4]<-"Color"
-    df.t<-rbind(df.G,df.B,df.R)
-    df.t$Color <- as.factor(df.t$Color)
-    tiff(file = paste0("Volcano_p.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
-    ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,2]), color= Color )) + 
+df.G<-subset(df,log_FC <= -1 & p < 0.05)
+df.G<-cbind(df.G,rep(1,nrow(df.G)))
+colnames(df.G)[4]<-"Color"
+df.B<-subset(df,log_FC > -1 & log_FC < 1 | p > 0.05)
+df.B<-cbind(df.B,rep(2,nrow(df.B)))
+colnames(df.B)[4]<-"Color"
+df.R<-subset(df,log_FC >= 1 & p < 0.05)
+df.R<-cbind(df.R,rep(3,nrow(df.R)))
+colnames(df.R)[4]<-"Color"
+df.t<-rbind(df.G,df.B,df.R)
+df.t$Color <- as.factor(df.t$Color)
+tiff(file = paste0("Volcano_p.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
+ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,2]), color= Color )) + 
     geom_point(alpha = 0.5, size = 1) + 
-    theme( legend.position = "none") + 
+    theme(legend.position = "none") + 
     xlim(c(-5, 5)) + 
     ylim(c(0, 20)) + 
     scale_color_manual(values = c("green", "grey", "red")) + 
-    labs(x=expression(log[2](Fold_Change)), 
-        y=expression(-log[10](p_value))) + 
-    theme(axis.title.x=element_text(size=12), 
-        axis.text.x=element_text(size=8)) + 
-    theme(axis.title.y=element_text(size=12), 
-        axis.text.y=element_text(size=8))
-    dev.off()
+    labs(x=expression(log[2](Fold_Change)), y=expression(-log[10](p_value))) + 
+    theme(axis.title.x=element_text(size=12), axis.text.x=element_text(size=8)) + 
+    theme(axis.title.y=element_text(size=12), axis.text.y=element_text(size=8))
+dev.off()
 
 # Draw volcano plot of diffgene by q_value.
-    df.G<-subset(df,log_FC <= -1 & q < 0.05)
-    df.G<-cbind(df.G,rep(1,nrow(df.G)))
-    colnames(df.G)[4]<-"Color"
-    df.B<-subset(df,log_FC > -1 & log_FC < 1 | q > 0.05)
-    df.B<-cbind(df.B,rep(2,nrow(df.B)))
-    colnames(df.B)[4]<-"Color"
-    df.R<-subset(df,log_FC >= 1 & q < 0.05)
-    df.R<-cbind(df.R,rep(3,nrow(df.R)))
-    colnames(df.R)[4]<-"Color"
-    df.t<-rbind(df.G,df.B,df.R)
-    df.t$Color <- as.factor(df.t$Color)
-    tiff(file = paste0("Volcano_q.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
-    ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,3]), color= Color )) + 
+df.G<-subset(df,log_FC <= -1 & q < 0.05)
+df.G<-cbind(df.G,rep(1,nrow(df.G)))
+colnames(df.G)[4]<-"Color"
+df.B<-subset(df,log_FC > -1 & log_FC < 1 | q > 0.05)
+df.B<-cbind(df.B,rep(2,nrow(df.B)))
+colnames(df.B)[4]<-"Color"
+df.R<-subset(df,log_FC >= 1 & q < 0.05)
+df.R<-cbind(df.R,rep(3,nrow(df.R)))
+colnames(df.R)[4]<-"Color"
+df.t<-rbind(df.G,df.B,df.R)
+df.t$Color <- as.factor(df.t$Color)
+tiff(file = paste0("Volcano_q.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
+ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,3]), color= Color )) + 
     geom_point(alpha = 0.5, size = 1) + 
     theme( legend.position = "none") + 
     xlim(c(-5, 5)) + 
     ylim(c(0, 20)) + 
     scale_color_manual(values = c("green", "grey", "red")) + 
-    labs(x=expression(log[2](Fold_Change)), 
-        y=expression(-log[10](q_value))) + 
-    theme(axis.title.x=element_text(size=12), 
-        axis.text.x=element_text(size=8)) + 
-    theme(axis.title.y=element_text(size=12), 
-        axis.text.y=element_text(size=8))
-    dev.off()
+    labs(x=expression(log[2](Fold_Change)), y=expression(-log[10](q_value))) + 
+    theme(axis.title.x=element_text(size=12), axis.text.x=element_text(size=8)) + 
+    theme(axis.title.y=element_text(size=12), axis.text.y=element_text(size=8))
+dev.off()
     """ % ( 
             {
                 "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path
@@ -426,48 +420,48 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 
     r_script_heatmap = """
 # set work directory
-    work_directory <- "%(find_diff_exp_gene_output_path)s"
-    setwd(work_directory)
-    pheatmap_directory <- paste0(work_directory, "/heatmap")
-    dir.create(pheatmap_directory)
+work_directory <- "%(find_diff_exp_gene_output_path)s"
+setwd(work_directory)
+pheatmap_directory <- paste0(work_directory, "/heatmap")
+dir.create(pheatmap_directory)
 
-    pheatmap_by_p_or_q <- function(data_directory, p_or_q) {
-        pheatmap_directory_p_or_q <- paste0(work_directory, "/heatmap/", p_or_q)
-        dir.create(pheatmap_directory_p_or_q)
-        setwd(pheatmap_directory_p_or_q)
+pheatmap_by_p_or_q <- function(data_directory, p_or_q) {
+    pheatmap_directory_p_or_q <- paste0(work_directory, "/heatmap/", p_or_q)
+    dir.create(pheatmap_directory_p_or_q)
+    setwd(pheatmap_directory_p_or_q)
 
-        diffgene_for_heatmap<-read.table(data_directory, head =TRUE, row.names = 1)
-        names(diffgene_for_heatmap) <- c("log2(N_FPKM)" , "log2(T_FPKM)")
-        num_of_rows <- nrow(diffgene_for_heatmap)
-        if ( 200 <= num_of_rows ) {
-            x = 0.9
-            y = x - 0.1
-            z = head(diffgene_for_heatmap, n = 200L)
-        }
-        if ( 25 < num_of_rows & num_of_rows < 200 ) {
-            x = -0.009415 * num_of_rows + 2.608537
-            y = x - 0.1
-            z = diffgene_for_heatmap
-        }
-        if ( num_of_rows <= 25 ) {
-            x = 2.5
-            y = x - 0.1
-            z = diffgene_for_heatmap
-        }
-
-        library(pheatmap)
-
-        for (m in c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid")) {
-            for (n in c("correlation","euclidean", "maximum", "manhattan", "canberra", "minkowski")){
-                tiff(file = paste0("heatmap_", m, "_", n, ".tif"), res = 600, width = 1800, height = 2600, compression = "lzw")
-                pheatmap(z, color=colorRampPalette(c("white","yellow","red"))(299), show_rownames = TRUE, fontsize = 6, fontsize_col = 5, fontsize_row = y, cellwidth = 10, cellheight = x, clustering_method = m, clustering_distance_cols = n, clustering_distance_rows = n, main = paste0("Top 200 (by ", p_or_q," value) genes with different expression\nlevels (represnted by log2(FPKM)) between N and T"))
-                dev.off()
-            }
-        }
+    diffgene_for_heatmap<-read.table(data_directory, head =TRUE, row.names = 1)
+    names(diffgene_for_heatmap) <- c("log2(N_FPKM)" , "log2(T_FPKM)")
+    num_of_rows <- nrow(diffgene_for_heatmap)
+    if ( 200 <= num_of_rows ) {
+        x = 0.9
+        y = x - 0.1
+        z = head(diffgene_for_heatmap, n = 200L)
+    }
+    if ( 25 < num_of_rows & num_of_rows < 200 ) {
+        x = -0.009415 * num_of_rows + 2.608537
+        y = x - 0.1
+        z = diffgene_for_heatmap
+    }
+    if ( num_of_rows <= 25 ) {
+        x = 2.5
+        y = x - 0.1
+        z = diffgene_for_heatmap
     }
 
-    pheatmap_by_p_or_q("%(diffgene_path_p_for_heatmap)s","p")
-    pheatmap_by_p_or_q("%(diffgene_path_q_for_heatmap)s","q")
+    library(pheatmap)
+
+    for (m in c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid")) {
+        for (n in c("correlation","euclidean", "maximum", "manhattan", "canberra", "minkowski")){
+            tiff(file = paste0("heatmap_", m, "_", n, ".tif"), res = 600, width = 1800, height = 2600, compression = "lzw")
+            pheatmap(z, color=colorRampPalette(c("white","yellow","red"))(299), show_rownames = TRUE, fontsize = 6, fontsize_col = 5, fontsize_row = y, cellwidth = 10, cellheight = x, clustering_method = m, clustering_distance_cols = n, clustering_distance_rows = n, main = paste0("Top 200 (by ", p_or_q," value) genes with different expression\nlevels (represnted by log2(FPKM)) between N and T"))
+            dev.off()
+        }
+    }
+}
+
+pheatmap_by_p_or_q("%(diffgene_path_p_for_heatmap)s","p")
+pheatmap_by_p_or_q("%(diffgene_path_q_for_heatmap)s","q")
     """ % ( 
             {
                 "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path,
