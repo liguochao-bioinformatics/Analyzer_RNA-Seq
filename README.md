@@ -1,7 +1,7 @@
 # Analyzer_RNA-Seq
 # Author: Li Guochao
 # e-mail: stevelee0201@163.com
-# Version of README: 0.4
+# Version of README: 0.5
 
 
 

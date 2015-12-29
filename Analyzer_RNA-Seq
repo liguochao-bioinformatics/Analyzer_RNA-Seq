@@ -9,39 +9,46 @@ from optparse import OptionParser
 from operator import itemgetter
 from math import log
 
-parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads", version="Version: 0.4")
+parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default)", version="Version: 0.5")
 
 parser.add_option("-p", 
                   "--path", 
-                  dest = "path", 
-                  type = "string",
-                  help = "The path of project. Absolute path is needed. (eg: /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq/mapping)") 
+                  dest      = "path", 
+                  type      = "string",
+                  help      = "The path of project. Absolute path is needed. (eg: /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq/mapping)") 
 
 parser.add_option("-g", 
                   "--gtf",
-                  dest = "reference_gtf", 
-                  type = "string",
-                  help = "The annotation GTF file of reference. Absolute path is needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf)") 
+                  dest      = "reference_gtf", 
+                  type      = "string",
+                  help      = "The annotation GTF file of reference. Absolute path is needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf)") 
 
 parser.add_option("-a", 
                   "--fa",
-                  dest = "reference_fa", 
-                  type = "string",
-                  help = "The reference name in .fa format. Absolute path is needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa)") 
+                  dest      = "reference_fa", 
+                  type      = "string",
+                  help      = "The reference name in .fa format. Absolute path is needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa)") 
 
 parser.add_option("-i", 
                   "--input",
                   "--fq",
-                  dest = "input_groups_and_filenames", 
-                  type = "string",
-                  help = "The names of fastq for analysis. The format is \"control,fastq1,fastq2:treat,fastq1,fastq2\". Absolute path is needed. (eg: 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq)") 
+                  dest      = "input_groups_and_filenames", 
+                  type      = "string",
+                  help      = "The names of fastq for analysis. The format is \"control,fastq1,fastq2:treat,fastq1,fastq2\". Absolute path is needed. (eg: 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq)") 
 
 parser.add_option("-t", 
                   "--thread",
-                  dest = "thread", 
-                  type = "int",
-                  default = 8,
-                  help = "The number of threads, default is 8.") 
+                  dest      = "thread", 
+                  type      = "int",
+                  default   = 8,
+                  help      = "The number of threads, default is 8.") 
+
+parser.add_option("-e", 
+                  "--enrichment", 
+                  dest      = "enrichment", 
+                  action    = "store_true",
+                  default   = False,
+                  help      = "Tell Analyzer_RNA-Seq to run GO and KEGG enrichment analysis on the Internet or not. Default is False. If '-e' is given, this step will run.") 
 
 (options, args) = parser.parse_args() 
 
@@ -54,6 +61,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     fa              = options.reference_fa
     groups_and_fqs  = options.input_groups_and_filenames.split(":")
     thread          = options.thread
+    enrichment      = options.enrichment
     
     group_1         = groups_and_fqs[0].split(",")[0]
     fq_group_1      = groups_and_fqs[0].split(",")[1:]
@@ -474,37 +482,38 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     os.system("Rscript " + r_script_heatmap_path_filename)
     os.system("rm " + r_script_heatmap_path_filename)
 
-### Step 6. GO and KEGG enrichmant analysis by R.
 
-    print
-    print "=" * 30 + " GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
-    run_time.write("GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+### Step 6. GO and KEGG enrichmant analysis by R. If '-e' is not given to Analyzer_RNA-Seq, this step will be passed.
+    if enrichment == True:
+        print
+        print "=" * 30 + " GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
+        run_time.write("GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
-    GO_and_KEGG_enrichment_output_path          =  os.path.join(path, "GO_and_KEGG_enrichment_analysis"      )
-    GO_and_KEGG_enrichment_output_path_p_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_up"   )
-    GO_and_KEGG_enrichment_output_path_p_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_down" )
-    GO_and_KEGG_enrichment_output_path_q_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_up"   )
-    GO_and_KEGG_enrichment_output_path_q_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_down" )
-    os.mkdir(GO_and_KEGG_enrichment_output_path)
-    os.mkdir(GO_and_KEGG_enrichment_output_path_p_up)
-    os.mkdir(GO_and_KEGG_enrichment_output_path_p_down)
-    os.mkdir(GO_and_KEGG_enrichment_output_path_q_up)
-    os.mkdir(GO_and_KEGG_enrichment_output_path_q_down)
+        GO_and_KEGG_enrichment_output_path          =  os.path.join(path, "GO_and_KEGG_enrichment_analysis"      )
+        GO_and_KEGG_enrichment_output_path_p_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_up"   )
+        GO_and_KEGG_enrichment_output_path_p_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_down" )
+        GO_and_KEGG_enrichment_output_path_q_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_up"   )
+        GO_and_KEGG_enrichment_output_path_q_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_down" )
+        os.mkdir(GO_and_KEGG_enrichment_output_path)
+        os.mkdir(GO_and_KEGG_enrichment_output_path_p_up)
+        os.mkdir(GO_and_KEGG_enrichment_output_path_p_down)
+        os.mkdir(GO_and_KEGG_enrichment_output_path_q_up)
+        os.mkdir(GO_and_KEGG_enrichment_output_path_q_down)
 
-    print GO_and_KEGG_enrichment_output_path_p_up
-    print diffgene_genenamelist_path_p_up
+        print GO_and_KEGG_enrichment_output_path_p_up
+        print diffgene_genenamelist_path_p_up
 
-    r_script_GO_and_KEGG_enrichment = """
+        r_script_GO_and_KEGG_enrichment = """
 # Use "GOstats" package to do GO or KEGG enrichment analysis of given gene symbols.
 
 # library necessary packages
-    library("org.Hs.eg.db")
-    library("GSEABase")
-    library("GOstats")
-    library(Category)
-    library("pathview")
+library("org.Hs.eg.db")
+library("GSEABase")
+library("GOstats")
+library(Category)
+library("pathview")
 
-    GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
+GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
     # setwd and get current_wd
     setwd(work_directory)
     wd <- getwd()
@@ -588,30 +597,37 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     for(i in 1:length(kegg$KEGGID)){
         pv.out <- pathview(gene.data, pathway.id=as.character(kegg$KEGGID)[i], species="hsa", out.suffix="pathview", kegg.native=T)
     }
-    }
+}
 
     GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_up)s"   , "%(diffgene_genenamelist_path_p_up)s"   )
     GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_down)s" , "%(diffgene_genenamelist_path_p_down)s" )
     GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_up)s"   , "%(diffgene_genenamelist_path_q_up)s"   )
     GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_down)s" , "%(diffgene_genenamelist_path_q_down)s" )
-    """ % ( 
-            {
-                "GO_and_KEGG_enrichment_output_path_p_up"       :  GO_and_KEGG_enrichment_output_path_p_up,
-                "diffgene_genenamelist_path_p_up"               :  diffgene_genenamelist_path_p_up,
-                "GO_and_KEGG_enrichment_output_path_p_down"     :  GO_and_KEGG_enrichment_output_path_p_down,
-                "diffgene_genenamelist_path_p_down"             :  diffgene_genenamelist_path_p_down,
-                "GO_and_KEGG_enrichment_output_path_q_up"       :  GO_and_KEGG_enrichment_output_path_q_up,
-                "diffgene_genenamelist_path_q_up"               :  diffgene_genenamelist_path_q_up,
-                "GO_and_KEGG_enrichment_output_path_q_down"     :  GO_and_KEGG_enrichment_output_path_q_down,
-                "diffgene_genenamelist_path_q_down"             :  diffgene_genenamelist_path_q_down
-            }
-        )
+        """ % ( 
+                {
+                    "GO_and_KEGG_enrichment_output_path_p_up"       :  GO_and_KEGG_enrichment_output_path_p_up,
+                    "diffgene_genenamelist_path_p_up"               :  diffgene_genenamelist_path_p_up,
+                    "GO_and_KEGG_enrichment_output_path_p_down"     :  GO_and_KEGG_enrichment_output_path_p_down,
+                    "diffgene_genenamelist_path_p_down"             :  diffgene_genenamelist_path_p_down,
+                    "GO_and_KEGG_enrichment_output_path_q_up"       :  GO_and_KEGG_enrichment_output_path_q_up,
+                    "diffgene_genenamelist_path_q_up"               :  diffgene_genenamelist_path_q_up,
+                    "GO_and_KEGG_enrichment_output_path_q_down"     :  GO_and_KEGG_enrichment_output_path_q_down,
+                    "diffgene_genenamelist_path_q_down"             :  diffgene_genenamelist_path_q_down
+                }
+            )
 
-    r_script_GO_and_KEGG_enrichment_path_filename = os.path.join(GO_and_KEGG_enrichment_output_path, "r_script_GO_and_KEGG_enrichment")
-    with open(r_script_GO_and_KEGG_enrichment_path_filename, "w") as r_script_GO_and_KEGG_enrichment_filehand:
-        r_script_GO_and_KEGG_enrichment_filehand.write(r_script_GO_and_KEGG_enrichment)
-    os.system("Rscript " + r_script_GO_and_KEGG_enrichment_path_filename)
-    os.system("rm " + r_script_GO_and_KEGG_enrichment_path_filename)
+        r_script_GO_and_KEGG_enrichment_path_filename = os.path.join(GO_and_KEGG_enrichment_output_path, "r_script_GO_and_KEGG_enrichment")
+        with open(r_script_GO_and_KEGG_enrichment_path_filename, "w") as r_script_GO_and_KEGG_enrichment_filehand:
+            r_script_GO_and_KEGG_enrichment_filehand.write(r_script_GO_and_KEGG_enrichment)
+        os.system("Rscript " + r_script_GO_and_KEGG_enrichment_path_filename)
+        os.system("rm " + r_script_GO_and_KEGG_enrichment_path_filename)
+
+    else:
+        print
+        print "=" * 35 + " GO and KEGG  enrichmant analysis (by R) does not run " + "=" * 35 + "\n"
+        run_time.write("GO_and_KEGG_enrichment_analysis does not run." + ".\n")
+
+
 
     run_time.write("Analyzer_RNA-Seq ends at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
     run_time.close()
