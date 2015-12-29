@@ -9,7 +9,7 @@ from optparse import OptionParser
 from operator import itemgetter
 from math import log
 
-parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet (defalut) or not", version="Version: 0.5")
+parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default)", version="Version: 0.5")
 
 parser.add_option("-p", 
                   "--path", 
@@ -46,9 +46,9 @@ parser.add_option("-t",
 parser.add_option("-e", 
                   "--enrichment", 
                   dest      = "enrichment", 
-                  action    = "store_false",
-                  default   = True,
-                  help      = "Tell Analyzer_RNA-Seq to run GO and KEGG enrichment analysis on the Internet or not. Default is True. If '-e' is given, this step will not run.") 
+                  action    = "store_true",
+                  default   = False,
+                  help      = "Tell Analyzer_RNA-Seq to run GO and KEGG enrichment analysis on the Internet or not. Default is False. If '-e' is given, this step will run.") 
 
 (options, args) = parser.parse_args() 
 
@@ -483,7 +483,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     os.system("rm " + r_script_heatmap_path_filename)
 
 
-### Step 6. GO and KEGG enrichmant analysis by R. If '-e' is given to Analyzer_RNA-Seq, this step will be passed.
+### Step 6. GO and KEGG enrichmant analysis by R. If '-e' is not given to Analyzer_RNA-Seq, this step will be passed.
     if enrichment == True:
         print
         print "=" * 30 + " GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
@@ -507,102 +507,102 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
 # Use "GOstats" package to do GO or KEGG enrichment analysis of given gene symbols.
 
 # library necessary packages
-        library("org.Hs.eg.db")
-        library("GSEABase")
-        library("GOstats")
-        library(Category)
-        library("pathview")
+library("org.Hs.eg.db")
+library("GSEABase")
+library("GOstats")
+library(Category)
+library("pathview")
 
-        GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
-        # setwd and get current_wd
-        setwd(work_directory)
-        wd <- getwd()
-        
-        # read a gene name list for analysis
-        genes <- read.table(data_directory)
-        genes <- as.vector(unlist(genes))
-        
-        
-        
-        # GO and KEGG enrichment analysis
-        
-        # 1.mkdir
-        GO_result_directory <- paste0(wd, "/GO_enrichment_result")
-        dir.create(GO_result_directory)
-        KEGG_result_directory <- paste0(wd, "/KEGG_enrichment_result")
-        dir.create(KEGG_result_directory)
+GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
+    # setwd and get current_wd
+    setwd(work_directory)
+    wd <- getwd()
+    
+    # read a gene name list for analysis
+    genes <- read.table(data_directory)
+    genes <- as.vector(unlist(genes))
+    
+    
+    
+    # GO and KEGG enrichment analysis
+    
+    # 1.mkdir
+    GO_result_directory <- paste0(wd, "/GO_enrichment_result")
+    dir.create(GO_result_directory)
+    KEGG_result_directory <- paste0(wd, "/KEGG_enrichment_result")
+    dir.create(KEGG_result_directory)
 
-        # 2.GO enrichment analysis
-        # (1) cd
-        setwd(GO_result_directory)
-        
-        # (2) analysis
-        goAnn <- get("org.Hs.egGO")
-        universe <- Lkeys(goAnn)
-        entrezIDs <- mget(genes, org.Hs.egSYMBOL2EG, ifnotfound=NA)
-        entrezIDs <- as.character(entrezIDs)
-        for (m in c("BP","CC","MF")) {
-            params <- new("GOHyperGParams", geneIds=entrezIDs, universeGeneIds=universe, annotation="org.Hs.eg.db", ontology = m, pvalueCutoff=0.05, conditional=FALSE, testDirection="over")
-            over <- hyperGTest(params)
-            glist <- geneIdsByCategory(over)
-            glist <- sapply(glist, function(.ids) {
-            .sym <- mget(.ids, envir=org.Hs.egSYMBOL, ifnotfound=NA)
-            .sym[is.na(.sym)] <- .ids[is.na(.sym)]
-            paste(.sym, collapse=";")
-            })
-            gene_ontology <- summary(over)
-            gene_ontology$Symbols <- glist[as.character(unlist(gene_ontology[1]))]
-            write.table(gene_ontology,paste0("GO_enrichment_result_", m, ".txt"),sep = "\t",row.names = FALSE)
-        }
-        
-        # (3) combination of 3 ontologys
-        bp <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_BP.txt"), sep = "\t", header = TRUE)
-        bp_ParentTerm <- rep("Biological Process", length(bp$Term))
-        go_enrichment_analysis_reuslt_BP <- cbind(bp[1:6],bp_ParentTerm,bp[7:8])
-        names(go_enrichment_analysis_reuslt_BP)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
-        cc <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_CC.txt"), sep = "\t", header = TRUE)
-        cc_ParentTerm <- rep("Cellular Components", length(cc$Term))
-        go_enrichment_analysis_reuslt_CC <- cbind(cc[1:6],cc_ParentTerm,cc[7:8])
-        names(go_enrichment_analysis_reuslt_CC)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
-        mf <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_MF.txt"), sep = "\t", header = TRUE)
-        mf_ParentTerm <- rep("Molecullar Function", length(mf$Term))
-        go_enrichment_analysis_reuslt_MF <- cbind(mf[1:6],mf_ParentTerm,mf[7:8])
-        names(go_enrichment_analysis_reuslt_MF)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
-        go_enrichment_analysis_reuslt_all <- rbind(go_enrichment_analysis_reuslt_BP,go_enrichment_analysis_reuslt_CC,go_enrichment_analysis_reuslt_MF)
-        write.table(go_enrichment_analysis_reuslt_all, paste0("GO_enrichment_result_ALL.txt"), sep = "\t", row.names = FALSE)
-        
-        
-        
-        # 3. KEGG enrichment analysis
-        # (1) cd
-        setwd(KEGG_result_directory)
-        
-        # (2) analysis
-        keggAnn <- get("org.Hs.egPATH")
-        universe <- Lkeys(keggAnn)
-        params <- new("KEGGHyperGParams", geneIds=entrezIDs, universeGeneIds=universe, annotation="org.Hs.eg.db", categoryName="KEGG", pvalueCutoff=0.05,testDirection="over")
+    # 2.GO enrichment analysis
+    # (1) cd
+    setwd(GO_result_directory)
+    
+    # (2) analysis
+    goAnn <- get("org.Hs.egGO")
+    universe <- Lkeys(goAnn)
+    entrezIDs <- mget(genes, org.Hs.egSYMBOL2EG, ifnotfound=NA)
+    entrezIDs <- as.character(entrezIDs)
+    for (m in c("BP","CC","MF")) {
+        params <- new("GOHyperGParams", geneIds=entrezIDs, universeGeneIds=universe, annotation="org.Hs.eg.db", ontology = m, pvalueCutoff=0.05, conditional=FALSE, testDirection="over")
         over <- hyperGTest(params)
-        kegg <- summary(over)
         glist <- geneIdsByCategory(over)
         glist <- sapply(glist, function(.ids) {
-            .sym <- mget(.ids, envir=org.Hs.egSYMBOL, ifnotfound=NA)
-            .sym[is.na(.sym)] <- .ids[is.na(.sym)]
-            paste(.sym, collapse=";")
+        .sym <- mget(.ids, envir=org.Hs.egSYMBOL, ifnotfound=NA)
+        .sym[is.na(.sym)] <- .ids[is.na(.sym)]
+        paste(.sym, collapse=";")
         })
-        kegg$Symbols <- glist[as.character(kegg$KEGGID)]
-        gIds <- mget(genes, org.Hs.egSYMBOL2EG, ifnotfound=NA)
-        gEns <- unlist(gIds)
-        gene.data <- rep(1, length(gEns))
-        names(gene.data) <- gEns
-        for(i in 1:length(kegg$KEGGID)){
-            pv.out <- pathview(gene.data, pathway.id=as.character(kegg$KEGGID)[i], species="hsa", out.suffix="pathview", kegg.native=T)
-        }
-        }
+        gene_ontology <- summary(over)
+        gene_ontology$Symbols <- glist[as.character(unlist(gene_ontology[1]))]
+        write.table(gene_ontology,paste0("GO_enrichment_result_", m, ".txt"),sep = "\t",row.names = FALSE)
+    }
+    
+    # (3) combination of 3 ontologys
+    bp <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_BP.txt"), sep = "\t", header = TRUE)
+    bp_ParentTerm <- rep("Biological Process", length(bp$Term))
+    go_enrichment_analysis_reuslt_BP <- cbind(bp[1:6],bp_ParentTerm,bp[7:8])
+    names(go_enrichment_analysis_reuslt_BP)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
+    cc <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_CC.txt"), sep = "\t", header = TRUE)
+    cc_ParentTerm <- rep("Cellular Components", length(cc$Term))
+    go_enrichment_analysis_reuslt_CC <- cbind(cc[1:6],cc_ParentTerm,cc[7:8])
+    names(go_enrichment_analysis_reuslt_CC)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
+    mf <- read.table(paste0(work_directory, "/GO_enrichment_result/","GO_enrichment_result_MF.txt"), sep = "\t", header = TRUE)
+    mf_ParentTerm <- rep("Molecullar Function", length(mf$Term))
+    go_enrichment_analysis_reuslt_MF <- cbind(mf[1:6],mf_ParentTerm,mf[7:8])
+    names(go_enrichment_analysis_reuslt_MF)<-c("GO_ID","Pvalue","OddsRatio","ExpCount","Count","Size","Term","Sub_Term","Symbols")
+    go_enrichment_analysis_reuslt_all <- rbind(go_enrichment_analysis_reuslt_BP,go_enrichment_analysis_reuslt_CC,go_enrichment_analysis_reuslt_MF)
+    write.table(go_enrichment_analysis_reuslt_all, paste0("GO_enrichment_result_ALL.txt"), sep = "\t", row.names = FALSE)
+    
+    
+    
+    # 3. KEGG enrichment analysis
+    # (1) cd
+    setwd(KEGG_result_directory)
+    
+    # (2) analysis
+    keggAnn <- get("org.Hs.egPATH")
+    universe <- Lkeys(keggAnn)
+    params <- new("KEGGHyperGParams", geneIds=entrezIDs, universeGeneIds=universe, annotation="org.Hs.eg.db", categoryName="KEGG", pvalueCutoff=0.05,testDirection="over")
+    over <- hyperGTest(params)
+    kegg <- summary(over)
+    glist <- geneIdsByCategory(over)
+    glist <- sapply(glist, function(.ids) {
+        .sym <- mget(.ids, envir=org.Hs.egSYMBOL, ifnotfound=NA)
+        .sym[is.na(.sym)] <- .ids[is.na(.sym)]
+        paste(.sym, collapse=";")
+    })
+    kegg$Symbols <- glist[as.character(kegg$KEGGID)]
+    gIds <- mget(genes, org.Hs.egSYMBOL2EG, ifnotfound=NA)
+    gEns <- unlist(gIds)
+    gene.data <- rep(1, length(gEns))
+    names(gene.data) <- gEns
+    for(i in 1:length(kegg$KEGGID)){
+        pv.out <- pathview(gene.data, pathway.id=as.character(kegg$KEGGID)[i], species="hsa", out.suffix="pathview", kegg.native=T)
+    }
+}
 
-        GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_up)s"   , "%(diffgene_genenamelist_path_p_up)s"   )
-        GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_down)s" , "%(diffgene_genenamelist_path_p_down)s" )
-        GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_up)s"   , "%(diffgene_genenamelist_path_q_up)s"   )
-        GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_down)s" , "%(diffgene_genenamelist_path_q_down)s" )
+    GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_up)s"   , "%(diffgene_genenamelist_path_p_up)s"   )
+    GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_p_down)s" , "%(diffgene_genenamelist_path_p_down)s" )
+    GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_up)s"   , "%(diffgene_genenamelist_path_q_up)s"   )
+    GO_and_KEGG_enrichment( "%(GO_and_KEGG_enrichment_output_path_q_down)s" , "%(diffgene_genenamelist_path_q_down)s" )
         """ % ( 
                 {
                     "GO_and_KEGG_enrichment_output_path_p_up"       :  GO_and_KEGG_enrichment_output_path_p_up,
@@ -625,6 +625,7 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     else:
         print
         print "=" * 35 + " GO and KEGG  enrichmant analysis (by R) does not run " + "=" * 35 + "\n"
+        run_time.write("GO_and_KEGG_enrichment_analysis does not run." + ".\n")
 
 
 
