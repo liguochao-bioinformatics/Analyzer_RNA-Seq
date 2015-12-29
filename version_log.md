@@ -9,3 +9,5 @@
 3. Version 0.3: Add Step 6 (GO and KEGG enrichment analysis by R) to Analyzer_RNA.
 
 4. Version 0.4: Add method of drawing various heatmaps to Step 5.
+
+5. Version 0.5: Add an -e option, for choosing to run GO and KEGG enrichment analysis on the Internet or not.
