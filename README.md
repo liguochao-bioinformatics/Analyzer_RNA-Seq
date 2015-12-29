@@ -20,13 +20,13 @@
         Tophat          v2.0.9 (note: Tophat only works normally with lower version of samtools, such as v0.1.19. Higher version of samtools make Tophat CANNOT work, such as v1.2)
         Cufflinks       v2.0.2
         R               v3.1.1
-        R packages      ggplot2, org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages they rely on. 
+        R packages      ggplot2, pheatmap, org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages they rely on. 
 
     (3) You can use these three cmmands in R to install all of required R packages:
 
         > install.packages("ggplot2")
         > source("http://bioconductor.org/biocLite.R")
-        > biocLite(c("org.Hs.eg.db", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
+        > biocLite(c("org.Hs.eg.db", "pheatmap", "GSEABase", "GOstats", "Category", "pathview", "cummeRbund"))
 
 
 
