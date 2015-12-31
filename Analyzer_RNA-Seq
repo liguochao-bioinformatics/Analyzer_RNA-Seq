@@ -202,13 +202,12 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     tophat_group_2_bam = os.path.join(path, "tophat", group_2, "accepted_hits.bam")
     cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam)
 
-    run_time.write("=" * 40 + " Analyzer ends at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n")
 
 
 ### Step 5. Find genes with different expression level (up-regulated or down-regulated) and filter them by p or q value. Output results in text format. In addition, output another list of all the diff-expression genes for valcano plot. Draw density, scatter and volcano plot and heatmap based on the results above. Finally, various heatmaps are drawn by different methods of clustering and measurements of distance. 
     print
-    print "=" * 35 + " Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 35 + "\n"
-    run_time.write("Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 35 + " 5. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 35 + "\n"
+    run_time.write("5. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     find_diff_exp_gene_output_path =  os.path.join(path, "find_diff_exp_gene")
     os.mkdir(find_diff_exp_gene_output_path)
@@ -333,10 +332,10 @@ tiff(file = "Scatter.tif", res = 600, width = 2000, height = 2000, compression =
 csScatter(genes(cuff_data), "N", "T")
 dev.off()
     """ % ( 
-        {
+            {
             "cuffdiff_output_path"              : cuffdiff_output_path,
             "find_diff_exp_gene_output_path"    : find_diff_exp_gene_output_path
-        }
+            }
         )
 
     r_script_summary_density_scatter_path_filename = os.path.join(find_diff_exp_gene_output_path, "r_script_summary_density_scatter")
@@ -480,8 +479,8 @@ pheatmap_by_p_or_q("%(diffgene_path_q_for_heatmap)s","q")
 ### Step 6. GO and KEGG enrichmant analysis by R. If '-e' is not given to Analyzer_RNA-Seq, this step will be passed.
     if enrichment == True:
         print
-        print "=" * 30 + " GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
-        run_time.write("GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+        print "=" * 30 + " 6. GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
+        run_time.write("6. GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
         GO_and_KEGG_enrichment_output_path          =  os.path.join(path, "GO_and_KEGG_enrichment_analysis"      )
         GO_and_KEGG_enrichment_output_path_p_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_up"   )
@@ -618,8 +617,8 @@ GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
 
     else:
         print
-        print "=" * 35 + " GO and KEGG  enrichmant analysis (by R) does not run " + "=" * 35 + "\n"
-        run_time.write("GO_and_KEGG_enrichment_analysis does not run." + ".\n")
+        print "=" * 35 + " 6. GO and KEGG  enrichmant analysis (by R) does not run " + "=" * 35 + "\n"
+        run_time.write("6. GO_and_KEGG_enrichment_analysis does not run." + "\n")
 
 
 
