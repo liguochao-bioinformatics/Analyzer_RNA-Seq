@@ -77,7 +77,7 @@
 
     (5) An example of running Analyzer_RNA-Seq in shell is shown below:
 
-        $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq \
+        $ /path_to_Analyzer_RNA-Seq/Analyzer_RNA-Seq \
             -p /leofs/sunyl_group/ligch/Test/tophat+cufflinks \
             -g /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf \
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
@@ -91,7 +91,7 @@
     
     (2) A summary of result of cuffdiff, raw information of genes with different expression levels (generated from /cufflinks/cuffdiff/gene_exp.diff) by p or q value are outputed in text format.
     
-    (3) Visulization: A density plot, a scatter plot and a volcano plot are outputed in tif format. Then various heatmaps are drawn by different methods of clustering and measurements of distance. You can choose one from those heatmaps according to your own biological problem. 
+    (3) Visulization: A density plot, a scatter plot and a volcano plot are outputed in tif format. Then various heatmaps are drawn by different methods of clustering and measurements of distance. You can choose one according to your own biological problem. 
     
     (4) GO and KEGG enrichment analysis are done by R, whose results are outputed in text format (for GO) and png format (for KEGG), respectively. 
     
