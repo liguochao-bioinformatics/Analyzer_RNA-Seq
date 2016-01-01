@@ -44,7 +44,7 @@
      
         $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
         
-        Usage: Analyzer_RNA-Seq.py [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads
+        Usage: Analyzer_RNA-Seq [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default)
 
         Options:
         --version             show program's version number and exit
@@ -71,6 +71,9 @@
                                 Seq/231-1/231-1_2.fastq)
         -t THREAD, --thread=THREAD
                                 The number of threads, default is 8.
+        -e, --enrichment      Tell Analyzer_RNA-Seq to run GO and KEGG enrichment
+                                analysis on the Internet or not. Default is False. If
+                                '-e' is given, this step will run.
 
     (5) An example of running Analyzer_RNA-Seq in shell is shown below:
 
