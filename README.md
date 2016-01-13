@@ -6,6 +6,7 @@
 
 
 1. Introduction
+
     Analyzer_RNA-Seq is designed for reducing person's repeated work during analysis of RNA-Seq data. It is an integration of some popular exsiting softwares. Meanwhile, some scripts written in Python and R are contained as well. Given raw data of RNA-Seq in fastq format, it analyzes automatically by tophat, cufflinks, Python, R, etc. The output contains the regular readable results of RNA-Seq analysis (eg. summary, density plot, scatter plot, volcano plot, results of GO and KEGG enrichment, etc.) and some necessary results for use in downstream personanlized analysis (eg. the list of genes with different expressions filtered by p or q value).
 
 
