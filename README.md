@@ -44,37 +44,40 @@
      
         $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
         
-        Usage: Analyzer_RNA-Seq.py [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads
+        Usage: Analyzer_RNA-Seq [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default)
 
         Options:
         --version             show program's version number and exit
         -h, --help            show this help message and exit
         -p PATH, --path=PATH  The path of project. Absolute path is needed. (eg:
-                                /leofs/sunyl_group/ligch/YuHui/analysis/RNA-
-                                Seq/mapping)
+                              /leofs/sunyl_group/ligch/YuHui/analysis/RNA-
+                              Seq/mapping)
         -g REFERENCE_GTF, --gtf=REFERENCE_GTF
-                                The annotation GTF file of reference. Absolute path is
-                                needed. (eg:
-                                /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf)
+                              The annotation GTF file of reference. Absolute path is
+                              needed. (eg:
+                              /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf)
         -a REFERENCE_FA, --fa=REFERENCE_FA
-                                The reference name in .fa format. Absolute path is
-                                needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa)
+                              The reference name in .fa format. Absolute path is
+                              needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa)
         -i INPUT_GROUPS_AND_FILENAMES, --input=INPUT_GROUPS_AND_FILENAMES, --fq=INPUT_GROUPS_AND_FILENAMES
-                                The names of fastq for analysis. The format is
-                                "control,fastq1,fastq2:treat,fastq1,fastq2". Absolute
-                                path is needed. (eg:
-                                231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-
-                                2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data
-                                /RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/
-                                ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/su
-                                nyl_group/ligch/YuHui/data/RNA-
-                                Seq/231-1/231-1_2.fastq)
+                              The names of fastq for analysis. The format is
+                              "control,fastq1,fastq2:treat,fastq1,fastq2". Absolute
+                              path is needed. (eg:
+                              231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-
+                              2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data
+                              /RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/
+                              ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/su
+                              nyl_group/ligch/YuHui/data/RNA-
+                              Seq/231-1/231-1_2.fastq)
         -t THREAD, --thread=THREAD
-                                The number of threads, default is 8.
+                              The number of threads, default is 8.
+        -e, --enrichment      Tell Analyzer_RNA-Seq to run GO and KEGG enrichment
+                              analysis on the Internet or not. Default is False. If
+                              '-e' is given, this step will run.
 
     (5) An example of running Analyzer_RNA-Seq in shell is shown below:
 
-        $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq \
+        $ /path_to_Analyzer_RNA-Seq/Analyzer_RNA-Seq \
             -p /leofs/sunyl_group/ligch/Test/tophat+cufflinks \
             -g /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf \
             -a /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa \
@@ -88,7 +91,7 @@
     
     (2) A summary of result of cuffdiff, raw information of genes with different expression levels (generated from /cufflinks/cuffdiff/gene_exp.diff) by p or q value are outputed in text format.
     
-    (3) Visulization: A density plot, a scatter plot and a volcano plot are outputed in tif format. Then various heatmaps are drawn by different methods of clustering and measurements of distance. You can choose one from those heatmaps according to your own biological problem. 
+    (3) Visulization: A density plot, a scatter plot and a volcano plot are outputed in tif format. Then various heatmaps are drawn by different methods of clustering and measurements of distance. You can choose one according to your own biological problem. 
     
     (4) GO and KEGG enrichment analysis are done by R, whose results are outputed in text format (for GO) and png format (for KEGG), respectively. 
     
