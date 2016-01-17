@@ -371,7 +371,7 @@ df.t<-rbind(df.G,df.B,df.R)
 df.t$Color <- as.factor(df.t$Color)
 tiff(file = paste0("Volcano_p.tif"), res = 600, width = 3236, height = 2000, compression = "lzw")
 ggplot(data = df.t, aes(x = df.t[,1], y = -log10(df.t[,2]), color= Color )) + 
-    geom_point(alpha = 0.5, size = 1) + 
+    geom_point(alpha = 0.5, size = 2) + 
     theme(legend.position = "none") + 
     xlim(c(-5, 5)) + 
     ylim(c(0, 20)) + 
