@@ -85,12 +85,12 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     def tophat(path, gtf, fa, group, fq_1, fq_2, thread):
         tophat_group_path = os.path.join(path, "tophat", group)
         os.mkdir(tophat_group_path)
-        tophat_cmdline = """tophat \
-            -p %(thread)d \
-            -G %(gtf)s \
-            -o %(tophat_group_path)s \
-            %(fa)s \
-            %(fq_1)s \
+        tophat_cmdline = """tophat \\
+            -p %(thread)d \\
+            -G %(gtf)s \\
+            -o %(tophat_group_path)s \\
+            %(fa)s \\
+            %(fq_1)s \\
             %(fq_2)s
         """ % (
                 {
@@ -117,9 +117,9 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     def cufflinks(path, group, thread):
         cufflinks_group_path =  os.path.join(path, "cufflinks", "cufflinks", group)
         os.mkdir(cufflinks_group_path)
-        cufflinks_cmdline = """cufflinks \
-            -p %(thread)d \
-            -o %(cufflinks_group_path)s \
+        cufflinks_cmdline = """cufflinks \\
+            -p %(thread)d \\
+            -o %(cufflinks_group_path)s \\
             %(tophat_bam_path)s
         """ % (
                 {
@@ -142,11 +142,11 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     run_time.write("3. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def cuffmerge(cuffmerge_output_path, gtf, fa, thread, assemblies):
-        cuffmerge_cmdline = """cuffmerge \
-            -o %(cuffmerge_output_path)s \
-            -g %(gtf)s \
-            -s %(fa)s \
-            -p %(thread)d \
+        cuffmerge_cmdline = """cuffmerge \\
+            -o %(cuffmerge_output_path)s \\
+            -g %(gtf)s \\
+            -s %(fa)s \\
+            -p %(thread)d \\
             %(assemblies.txt)s
         """ % (
                 {
@@ -175,14 +175,14 @@ if options.path and options.reference_gtf and options.reference_fa and options.i
     run_time.write("4. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam):
-        cuffdiff_cmdline = """cuffdiff \
-            -o %(cuffdiff_output_path)s \
-            -b %(fa)s \
-            -p %(thread)d \
-            -L N,T \
-            -u %(merged_gtf)s \
-            %(tophat_group_1_bam)s \
-            %(tophat_group_2_bam)s \
+        cuffdiff_cmdline = """cuffdiff \\
+            -o %(cuffdiff_output_path)s \\
+            -b %(fa)s \\
+            -p %(thread)d \\
+            -L N,T \\
+            -u %(merged_gtf)s \\
+            %(tophat_group_1_bam)s \\
+            %(tophat_group_2_bam)s 
         """ % (
                 {
                     "cuffdiff_output_path"  : cuffdiff_output_path,
