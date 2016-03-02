@@ -1,7 +1,7 @@
 # Analyzer_RNA-Seq
 # Author: Li Guochao
 # e-mail: stevelee0201@163.com
-# Version of README: 0.5
+# Version of README: 0.7
 
 
 
@@ -22,6 +22,7 @@
         Cufflinks       v2.0.2
         R               v3.1.1
         R packages      ggplot2, pheatmap, org.Hs.eg.db, GSEABase, GOstats, Category, pathview, cummeRbund and the packages they rely on. 
+        piplineforQC or another software for QC.
 
     (3) You can use these three cmmands in R to install all of required R packages:
 
@@ -45,31 +46,28 @@
      
         $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
         
-        Usage: Analyzer_RNA-Seq [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default)
+        Usage: Analyzer_RNA-Seq [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] control,fastq1,fastq2:treat,fastq1,fastq2 [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default is not)
 
         Options:
         --version             show program's version number and exit
         -h, --help            show this help message and exit
-        -p PATH, --path=PATH  The path of project. Absolute path is needed. (eg:
-                              /leofs/sunyl_group/ligch/YuHui/analysis/RNA-
-                              Seq/mapping)
+        -p PATH, --path=PATH  The path of project. (eg:
+                              /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq or ./)
         -g REFERENCE_GTF, --gtf=REFERENCE_GTF
-                              The annotation GTF file of reference. Absolute path is
-                              needed. (eg:
-                              /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf)
+                              The annotation GTF file of reference. (eg:
+                              /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf or ./hg.gtf)
         -a REFERENCE_FA, --fa=REFERENCE_FA
-                              The reference name in .fa format. Absolute path is
-                              needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa)
+                              The reference name in .fa format. (eg:
+                              /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa or ./hg.fa)
         -i INPUT_GROUPS_AND_FILENAMES, --input=INPUT_GROUPS_AND_FILENAMES, --fq=INPUT_GROUPS_AND_FILENAMES
-                              The names of fastq for analysis. The format is
-                              "control,fastq1,fastq2:treat,fastq1,fastq2". Absolute
-                              path is needed. (eg:
+                              The names of fastq files for analysis. (eg:
                               231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-
                               2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data
                               /RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/
                               ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/su
-                              nyl_group/ligch/YuHui/data/RNA-
-                              Seq/231-1/231-1_2.fastq)
+                              nyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq
+                              or NCSC,./231-2/231-2_1.fastq,./231-2/231-2_1.fastq:CS
+                              C,./231-1/231-1_1.fastq,./231-1/231-1_2.fastq)
         -t THREAD, --thread=THREAD
                               The number of threads, default is 8.
         -e, --enrichment      Tell Analyzer_RNA-Seq to run GO and KEGG enrichment
