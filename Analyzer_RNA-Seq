@@ -9,32 +9,32 @@ from optparse import OptionParser
 from operator import itemgetter
 from math import log
 
-parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] input_fastq_files [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default)", version="Version: 0.6")
+parser = OptionParser(usage="%prog [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] control,fastq1,fastq2:treat,fastq1,fastq2 [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default is not)", version="Version: 0.7")
 
 parser.add_option("-p", 
                   "--path", 
                   dest      = "path", 
                   type      = "string",
-                  help      = "The path of project. Absolute path is needed. (eg: /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq/mapping)") 
+                  help      = "The path of project.\n(eg: /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq or ./)") 
 
 parser.add_option("-g", 
                   "--gtf",
                   dest      = "reference_gtf", 
                   type      = "string",
-                  help      = "The annotation GTF file of reference. Absolute path is needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf)") 
+                  help      = "The annotation GTF file of reference.\n(eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf or ./hg.gtf)") 
 
 parser.add_option("-a", 
                   "--fa",
                   dest      = "reference_fa", 
                   type      = "string",
-                  help      = "The reference name in .fa format. Absolute path is needed. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa)") 
+                  help      = "The reference name in .fa format.\n(eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa or ./hg.fa)") 
 
 parser.add_option("-i", 
                   "--input",
                   "--fq",
                   dest      = "input_groups_and_filenames", 
                   type      = "string",
-                  help      = "The names of fastq for analysis. The format is \"control,fastq1,fastq2:treat,fastq1,fastq2\". Absolute path is needed. (eg: 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq)") 
+                  help      = "The names of fastq files for analysis.\n(eg: 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq or NCSC,./231-2/231-2_1.fastq,./231-2/231-2_1.fastq:CSC,./231-1/231-1_1.fastq,./231-1/231-1_2.fastq)") 
 
 parser.add_option("-t", 
                   "--thread",
@@ -56,17 +56,17 @@ parser.add_option("-e",
 ### Preparation
 if options.path and options.reference_gtf and options.reference_fa and options.input_groups_and_filenames and options.thread:
 
-    path            = options.path
-    gtf             = options.reference_gtf
-    fa              = options.reference_fa
+    path            = os.path.abspath(options.path)
+    gtf             = os.path.abspath(options.reference_gtf)
+    fa              = os.path.abspath(options.reference_fa)
     groups_and_fqs  = options.input_groups_and_filenames.split(":")
     thread          = options.thread
     enrichment      = options.enrichment
     
     group_1         = groups_and_fqs[0].split(",")[0]
-    fq_group_1      = groups_and_fqs[0].split(",")[1:]
+    fq_group_1      = [os.path.abspath(i) for i in groups_and_fqs[0].split(",")[1:]]
     group_2         = groups_and_fqs[1].split(",")[0]
-    fq_group_2      = groups_and_fqs[1].split(",")[1:]
+    fq_group_2      = [os.path.abspath(i) for i in groups_and_fqs[1].split(",")[1:]]
 
     os.chdir(path)
 

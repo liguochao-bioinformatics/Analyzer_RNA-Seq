@@ -11,3 +11,7 @@
 4. Version 0.4: Add method of drawing various heatmaps to Step 5.
 
 5. Version 0.5: Add an -e option, for choosing to run GO and KEGG enrichment analysis on the Internet or not.
+
+6. Version 0.6: Add QC as new Step 1.
+
+7. Version 0.7: Relative path is available.
