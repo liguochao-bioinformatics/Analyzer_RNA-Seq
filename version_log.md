@@ -15,3 +15,5 @@
 6. Version 0.6: Add QC as new Step 1.
 
 7. Version 0.7: Relative path is available.
+
+8. Version 0.8: Change option '-p' to '-o' for unifying the option style of each Analyzer.

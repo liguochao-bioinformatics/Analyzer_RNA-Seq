@@ -1,7 +1,7 @@
 # Analyzer_RNA-Seq
 # Author: Li Guochao
 # e-mail: stevelee0201@163.com
-# Version of README: 0.7
+# Version of README: 0.8
 
 
 
@@ -46,33 +46,34 @@
      
         $ /path_to_Analyzer_RNA/Analyzer_RNA-Seq --help 
         
-        Usage: Analyzer_RNA-Seq [-p] path_name [-g] Reference.gtf [-a] Reference.fa [-i] control,fastq1,fastq2:treat,fastq1,fastq2 [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default is not)
+        Usage: Analyzer_RNA-Seq [-o] output_path [-g] Reference.gtf [-a] Reference.fa [-i] control,fastq1,fastq2:treat,fastq1,fastq2 [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default is not)
 
         Options:
-        --version             show program's version number and exit
-        -h, --help            show this help message and exit
-        -p PATH, --path=PATH  The path of project. (eg:
-                              /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq or ./)
-        -g REFERENCE_GTF, --gtf=REFERENCE_GTF
-                              The annotation GTF file of reference. (eg:
-                              /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf or ./hg.gtf)
-        -a REFERENCE_FA, --fa=REFERENCE_FA
-                              The reference name in .fa format. (eg:
-                              /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa or ./hg.fa)
-        -i INPUT_GROUPS_AND_FILENAMES, --input=INPUT_GROUPS_AND_FILENAMES, --fq=INPUT_GROUPS_AND_FILENAMES
-                              The names of fastq files for analysis. (eg:
-                              231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-
-                              2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data
-                              /RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/
-                              ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/su
-                              nyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq
-                              or NCSC,./231-2/231-2_1.fastq,./231-2/231-2_1.fastq:CS
-                              C,./231-1/231-1_1.fastq,./231-1/231-1_2.fastq)
-        -t THREAD, --thread=THREAD
-                              The number of threads, default is 8.
-        -e, --enrichment      Tell Analyzer_RNA-Seq to run GO and KEGG enrichment
-                              analysis on the Internet or not. Default is False. If
-                              '-e' is given, this step will run.
+            --version             show program's version number and exit
+            -h, --help            show this help message and exit
+            -o OUTPUT_PATH, --output_path=OUTPUT_PATH
+                                    The path of output. (eg:
+                                    /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq or ./)
+            -g REFERENCE_GTF, --gtf=REFERENCE_GTF
+                                    The annotation GTF file of reference. (eg:
+                                    /leofs/sunyl_group/yaolsh/ref/hg19/hg.gtf or ./hg.gtf)
+            -a REFERENCE_FA, --fa=REFERENCE_FA
+                                    The reference name in .fa format. (eg:
+                                    /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa or ./hg.fa)
+            -i INPUT_GROUPS_AND_FILENAMES, --input=INPUT_GROUPS_AND_FILENAMES, --fq=INPUT_GROUPS_AND_FILENAMES
+                                    The names of fastq files for analysis. (eg:
+                                    231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-
+                                    2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data
+                                    /RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/
+                                    ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/su
+                                    nyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq
+                                    or NCSC,./231-2/231-2_1.fastq,./231-2/231-2_1.fastq:CS
+                                    C,./231-1/231-1_1.fastq,./231-1/231-1_2.fastq)
+            -t THREAD, --thread=THREAD
+                                    The number of threads, default is 8.
+            -e, --enrichment      Tell Analyzer_RNA-Seq to run GO and KEGG enrichment
+                                    analysis on the Internet or not. Default is False. If
+                                    '-e' is given, this step will run.
 
     (5) An example of running Analyzer_RNA-Seq in shell is shown below:
 
