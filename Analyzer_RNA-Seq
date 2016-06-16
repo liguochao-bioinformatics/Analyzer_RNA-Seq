@@ -190,7 +190,7 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
                 {
                     "thread"                : thread,
                     "cufflinks_group_path"  : cufflinks_group_path,
-                    "tophat_bam_path"       : os.path.join(output_path, "tophat", group, "accepted_hits.bam"),
+                    "tophat_bam_path"       : os.path.join(output_path, "2_tophat", group, "accepted_hits.bam"),
                 }
               )
         os.system(cufflinks_cmdline)
