@@ -9,13 +9,7 @@ from optparse import OptionParser
 from operator import itemgetter
 from math import log
 
-parser = OptionParser(usage="%prog [-o] output_path [-g] Reference.gtf [-a] Reference.fa [-i] control,fastq1,fastq2:treat,fastq1,fastq2 [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default is not)", version="Version: 0.8")
-
-parser.add_option("-o", 
-                  "--output_path", 
-                  dest      = "output_path", 
-                  type      = "string",
-                  help      = "The path of output. (eg: /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq or ./)") 
+parser = OptionParser(usage="%prog [-g] Reference.gtf [-a] Reference.fa [-t] num_of_threads [-e] run enrichment analysis on the Internet or not (default is not) [-i] control,fastq1,fastq2:treat,fastq1,fastq2 [-o] output_path", version="Version: 0.8")
 
 parser.add_option("-g", 
                   "--gtf",
@@ -28,13 +22,6 @@ parser.add_option("-a",
                   dest      = "reference_fa", 
                   type      = "string",
                   help      = "The reference name in .fa format. (eg: /leofs/sunyl_group/yaolsh/ref/hg19/hg.fa or ./hg.fa)") 
-
-parser.add_option("-i", 
-                  "--input",
-                  "--fq",
-                  dest      = "input_groups_and_filenames", 
-                  type      = "string",
-                  help      = "The names of fastq files for analysis. (eg: 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq or NCSC,./231-2/231-2_1.fastq,./231-2/231-2_1.fastq:CSC,./231-1/231-1_1.fastq,./231-1/231-1_2.fastq)") 
 
 parser.add_option("-t", 
                   "--thread",
@@ -50,18 +37,31 @@ parser.add_option("-e",
                   default   = False,
                   help      = "Tell Analyzer_RNA-Seq to run GO and KEGG enrichment analysis on the Internet or not. Default is False. If '-e' is given, this step will run.") 
 
+parser.add_option("-i", 
+                  "--input",
+                  "--fq",
+                  dest      = "input_groups_and_filenames", 
+                  type      = "string",
+                  help      = "The names of fastq files for analysis. (eg: 231-2,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-2/231-2_2.fastq:231-1,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_1.fastq,/leofs/sunyl_group/ligch/YuHui/data/RNA-Seq/231-1/231-1_2.fastq or NCSC,./231-2/231-2_1.fastq,./231-2/231-2_1.fastq:CSC,./231-1/231-1_1.fastq,./231-1/231-1_2.fastq)") 
+
+parser.add_option("-o", 
+                  "--output_path", 
+                  dest      = "output_path", 
+                  type      = "string",
+                  help      = "The path of output. (eg: /leofs/sunyl_group/ligch/YuHui/analysis/RNA-Seq or ./)") 
+
 (options, args) = parser.parse_args() 
 
 
 ### Preparation
 if options.output_path and options.reference_gtf and options.reference_fa and options.input_groups_and_filenames and options.thread:
 
-    output_path     = os.path.abspath(options.output_path)
     gtf             = os.path.abspath(options.reference_gtf)
     fa              = os.path.abspath(options.reference_fa)
-    groups_and_fqs  = options.input_groups_and_filenames.split(":")
     thread          = options.thread
     enrichment      = options.enrichment
+    groups_and_fqs  = options.input_groups_and_filenames.split(":")
+    output_path     = os.path.abspath(options.output_path)
     
     group_1         = groups_and_fqs[0].split(",")[0]
     fq_group_1      = [os.path.abspath(i) for i in groups_and_fqs[0].split(",")[1:]]
@@ -70,17 +70,18 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
 
     os.chdir(output_path)
 
-    run_time = open("Run_time", "w")
 
     print 
-    print "=" * 40 + " Analyzer_RNA-Seq starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("Analyzer_RNA-Seq starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 40 + " Analyzer_RNA-Seq starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + "\n"
+    with open("Run_time", "w") as run_time:
+        run_time.write("Analyzer_RNA-Seq starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n\n")
 
 
 ### Step 1. QC
     print
-    print "=" * 40 + " 1. QC starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("1. QC starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 40 + " 1. QC starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + "\n"
+    with open("Run_time", "a") as run_time:
+        run_time.write("1. QC starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def qc(qc_path, group, fq_1, fq_2):
         qc_group_path = os.path.join(qc_path, group)
@@ -118,7 +119,7 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
               )
         os.system(fastqc_cmdline)
 
-    qc_path = os.path.join(output_path, "QC")
+    qc_path = os.path.join(output_path, "1_QC")
     os.mkdir(qc_path)
     qc(qc_path, group_1, fq_group_1[0], fq_group_1[1])
     qc(qc_path, group_2, fq_group_2[0], fq_group_2[1])
@@ -141,11 +142,12 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
 
 ### Step 2. tophat
     print
-    print "=" * 40 + " 2. Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("2. Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 40 + " 2. Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + "\n"
+    with open("Run_time", "a") as run_time:
+        run_time.write("2. Tophat starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def tophat(output_path, gtf, fa, group, fq_1, fq_2, thread):
-        tophat_group_path = os.path.join(output_path, "tophat", group)
+        tophat_group_path = os.path.join(output_path, "2_tophat", group)
         os.mkdir(tophat_group_path)
         tophat_cmdline = """tophat \
             -p %(thread)d \
@@ -166,18 +168,19 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
               )
         os.system(tophat_cmdline)
 
-    os.mkdir( os.path.join(output_path, "tophat") )
+    os.mkdir( os.path.join(output_path, "2_tophat") )
     tophat(output_path, gtf, fa, group_1, fq_group_1_after_QC[0], fq_group_1_after_QC[1], thread)
     tophat(output_path, gtf, fa, group_2, fq_group_2_after_QC[0], fq_group_2_after_QC[1], thread)
 
 
 ### Step 3. cufflinks
     print
-    print "=" * 40 + " 3. Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("3. Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 40 + " 3. Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + "\n"
+    with open("Run_time", "a") as run_time:
+        run_time.write("3. Cufflinks starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def cufflinks(output_path, group, thread):
-        cufflinks_group_path =  os.path.join(output_path, "cufflinks", "cufflinks", group)
+        cufflinks_group_path =  os.path.join(output_path, "3-5_cufflinks", "3_cufflinks", group)
         os.mkdir(cufflinks_group_path)
         cufflinks_cmdline = """cufflinks \
             -p %(thread)d \
@@ -192,16 +195,17 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
               )
         os.system(cufflinks_cmdline)
 
-    os.mkdir( os.path.join(output_path, "cufflinks") )
-    os.mkdir( os.path.join(output_path, "cufflinks", "cufflinks") )
+    os.mkdir( os.path.join(output_path, "3-5_cufflinks") )
+    os.mkdir( os.path.join(output_path, "3-5_cufflinks", "3_cufflinks") )
     cufflinks(output_path, group_1, thread)
     cufflinks(output_path, group_2, thread)
 
 
 ### Step 4. cuffmerge
     print
-    print "=" * 40 + " 4. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("4. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 40 + " 4. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + "\n"
+    with open("Run_time", "a") as run_time:
+        run_time.write("4. Cuffmerge starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def cuffmerge(cuffmerge_output_path, gtf, fa, thread, assemblies):
         cuffmerge_cmdline = """cuffmerge \
@@ -221,11 +225,11 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
               )
         os.system(cuffmerge_cmdline)
 
-    cuffmerge_output_path = os.path.join(output_path, "cufflinks", "cuffmerge") 
+    cuffmerge_output_path = os.path.join(output_path, "3-5_cufflinks", "4_cuffmerge") 
     os.mkdir(cuffmerge_output_path)
     with open(os.path.join(cuffmerge_output_path, "assemblies.txt"), "w") as cuffmerge_assemblies:
-        out_line_1 = os.path.join(output_path, "cufflinks", "cufflinks", group_1, "transcripts.gtf")
-        out_line_2 = os.path.join(output_path, "cufflinks", "cufflinks", group_2, "transcripts.gtf")
+        out_line_1 = os.path.join(output_path, "3-5_cufflinks", "3_cufflinks", group_1, "transcripts.gtf")
+        out_line_2 = os.path.join(output_path, "3-5_cufflinks", "3_cufflinks", group_2, "transcripts.gtf")
         cuffmerge_assemblies.write(out_line_1 + "\n" + out_line_2 + "\n")
     assemblies = os.path.join(cuffmerge_output_path, "assemblies.txt")
     cuffmerge(cuffmerge_output_path, gtf, fa, thread, assemblies)
@@ -233,8 +237,9 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
 
 ### Step 5. cuffdiff
     print
-    print "=" * 40 + " 5. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + ".\n"
-    run_time.write("5. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    print "=" * 40 + " 5. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 40 + "\n"
+    with open("Run_time", "a") as run_time:
+        run_time.write("5. Cuffdiff starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
     def cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam):
         cuffdiff_cmdline = """cuffdiff \
@@ -257,11 +262,11 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
               )
         os.system(cuffdiff_cmdline)
 
-    cuffdiff_output_path =  os.path.join(output_path, "cufflinks", "cuffdiff")
+    cuffdiff_output_path =  os.path.join(output_path, "3-5_cufflinks", "5_cuffdiff")
     os.mkdir(cuffdiff_output_path)
     merged_gtf = os.path.join(cuffmerge_output_path, "merged.gtf")
-    tophat_group_1_bam = os.path.join(output_path, "tophat", group_1, "accepted_hits.bam")
-    tophat_group_2_bam = os.path.join(output_path, "tophat", group_2, "accepted_hits.bam")
+    tophat_group_1_bam = os.path.join(output_path, "2_tophat", group_1, "accepted_hits.bam")
+    tophat_group_2_bam = os.path.join(output_path, "2_tophat", group_2, "accepted_hits.bam")
     cuffdiff(cuffdiff_output_path, thread, merged_gtf, tophat_group_1_bam, tophat_group_2_bam)
 
 
@@ -269,9 +274,10 @@ if options.output_path and options.reference_gtf and options.reference_fa and op
 ### Step 6. Find genes with different expression level (up-regulated or down-regulated) and filter them by p or q value. Output results in text format. In addition, output another list of all the diff-expression genes for valcano plot. Draw density, scatter and volcano plot and heatmap based on the results above. Finally, various heatmaps are drawn by different methods of clustering and measurements of distance. 
     print
     print "=" * 35 + " 6. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 35 + "\n"
-    run_time.write("6. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+    with open("Run_time", "a") as run_time:
+        run_time.write("6. Find_diff_exp_genes starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
-    find_diff_exp_gene_output_path =  os.path.join(output_path, "find_diff_exp_gene")
+    find_diff_exp_gene_output_path =  os.path.join(output_path, "6_find_diff_exp_gene")
     os.mkdir(find_diff_exp_gene_output_path)
 
     cuffdiff_gene_exp_diff            = open(os.path.join(cuffdiff_output_path          , "gene_exp.diff"               ), "r")
@@ -542,9 +548,10 @@ pheatmap_by_p_or_q("%(diffgene_path_q_for_heatmap)s","q")
     if enrichment == True:
         print
         print "=" * 30 + " 7. GO and KEGG  enrichmant analysis (by R) starts at " + time('%Y-%m-%d %H:%M:%S') + " " + "=" * 30 + "\n"
-        run_time.write("7. GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
+        with open("Run_time", "a") as run_time:
+            run_time.write("7. GO_and_KEGG_enrichment_analysis starts at " + time('%Y-%m-%d %H:%M:%S') + ".\n\n")
 
-        GO_and_KEGG_enrichment_output_path          =  os.path.join(output_path, "GO_and_KEGG_enrichment_analysis"      )
+        GO_and_KEGG_enrichment_output_path          =  os.path.join(output_path, "7_GO_and_KEGG_enrichment_analysis"      )
         GO_and_KEGG_enrichment_output_path_p_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_up"   )
         GO_and_KEGG_enrichment_output_path_p_down   =  os.path.join(GO_and_KEGG_enrichment_output_path, "p_down" )
         GO_and_KEGG_enrichment_output_path_q_up     =  os.path.join(GO_and_KEGG_enrichment_output_path, "q_up"   )
@@ -680,12 +687,13 @@ GO_and_KEGG_enrichment <- function(work_directory, data_directory) {
     else:
         print
         print "=" * 35 + " 7. GO and KEGG  enrichmant analysis (by R) does not run " + "=" * 35 + "\n"
-        run_time.write("7. GO_and_KEGG_enrichment_analysis does not run." + "\n")
+        with open("Run_time", "a") as run_time:
+            run_time.write("7. GO_and_KEGG_enrichment_analysis does not run." + "\n\n")
 
 
 
-    run_time.write("Analyzer_RNA-Seq ends at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
-    run_time.close()
+    with open("Run_time", "a") as run_time:
+        run_time.write("\n" + "Analyzer_RNA-Seq ends at " + time('%Y-%m-%d %H:%M:%S') + ".\n")
 
 
 
